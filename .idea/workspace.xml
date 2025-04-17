@@ -4,10 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c1fac3f9-5e8e-4a3b-86dd-7352e732b873" name="Changes" comment="First step">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="c1fac3f9-5e8e-4a3b-86dd-7352e732b873" name="Changes" comment="Login/Signup screen with google (No internal function yet)">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/LoginPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/LoginPage.jsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,43 +57,45 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.AboutPage.js.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.App.js.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.HomePage.js.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.LoginPage.js.executor&quot;: &quot;Run&quot;,
-    &quot;Node.js.LoginPage.jsx.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Branch__Rull&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/rulla/IdeaProjects/habitude-frontend/src/pages&quot;,
-    &quot;list.type.of.created.stylesheet&quot;: &quot;CSS&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs.jest.jest_package&quot;: &quot;&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.lookFeel&quot;,
-    &quot;ts.external.directory.path&quot;: &quot;C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.3.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "JavaScript Debug.index.html.executor": "Run",
+    "Node.js.AboutPage.js.executor": "Run",
+    "Node.js.App.js.executor": "Run",
+    "Node.js.HomePage.js.executor": "Run",
+    "Node.js.LoginPage.js.executor": "Run",
+    "Node.js.LoginPage.jsx.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "Branch__Rull",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/rulla/IdeaProjects/habitude-frontend/public",
+    "list.type.of.created.stylesheet": "CSS",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs.jest.jest_package": "",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "ts.external.directory.path": "C:\\Program Files\\JetBrains\\IntelliJ IDEA 2024.3.3\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\rulla\IdeaProjects\habitude-frontend\public" />
       <recent name="C:\Users\rulla\IdeaProjects\habitude-frontend\src\pages" />
       <recent name="C:\Users\rulla\IdeaProjects\habitude-frontend\src\Logos" />
       <recent name="C:\Users\rulla\IdeaProjects\habitude-frontend\src\Icons" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\rulla\IdeaProjects\habitude-frontend\public" />
       <recent name="C:\Users\rulla\IdeaProjects\habitude-frontend\src\images" />
       <recent name="C:\Users\rulla\IdeaProjects\habitude-frontend\src\pages" />
       <recent name="C:\Users\rulla\IdeaProjects\habitude-frontend\src\Icons" />
@@ -148,7 +150,8 @@
       <workItem from="1744874259235" duration="536000" />
       <workItem from="1744874810797" duration="1975000" />
       <workItem from="1744912871724" duration="734000" />
-      <workItem from="1744913627796" duration="297000" />
+      <workItem from="1744913627796" duration="3425000" />
+      <workItem from="1744922010714" duration="1521000" />
     </task>
     <task id="LOCAL-00001" summary="First step">
       <option name="closed" value="true" />
@@ -158,7 +161,15 @@
       <option name="project" value="LOCAL" />
       <updated>1744875842869</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Login/Signup screen with google (No internal function yet)">
+      <option name="closed" value="true" />
+      <created>1744914141716</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1744914141716</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -177,6 +188,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="First step" />
-    <option name="LAST_COMMIT_MESSAGE" value="First step" />
+    <MESSAGE value="Login/Signup screen with google (No internal function yet)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Login/Signup screen with google (No internal function yet)" />
   </component>
 </project>
