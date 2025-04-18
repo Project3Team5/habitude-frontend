@@ -4,12 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="c1fac3f9-5e8e-4a3b-86dd-7352e732b873" name="Changes" comment="Login/Signup screen with google (No internal function yet)">
+    <list default="true" id="c1fac3f9-5e8e-4a3b-86dd-7352e732b873" name="Changes" comment="I fixed the conflicts from part 1.">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/public/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/LoginPage.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/LoginPage.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/index.html" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -154,7 +150,7 @@
       <workItem from="1744912871724" duration="734000" />
       <workItem from="1744913627796" duration="3425000" />
       <workItem from="1744922010714" duration="6920000" />
-      <workItem from="1745008365865" duration="2126000" />
+      <workItem from="1745008365865" duration="3157000" />
     </task>
     <task id="LOCAL-00001" summary="First step">
       <option name="closed" value="true" />
@@ -188,7 +184,23 @@
       <option name="project" value="LOCAL" />
       <updated>1744927168083</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="I fixed the conflicts from part 1.">
+      <option name="closed" value="true" />
+      <created>1745011756477</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1745011756477</updated>
+    </task>
+    <task id="LOCAL-00006" summary="I fixed the conflicts from part 1.">
+      <option name="closed" value="true" />
+      <created>1745011949002</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1745011949002</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -218,6 +230,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="First step" />
     <MESSAGE value="Login/Signup screen with google (No internal function yet)" />
-    <option name="LAST_COMMIT_MESSAGE" value="Login/Signup screen with google (No internal function yet)" />
+    <MESSAGE value="I fixed the conflicts from part 1." />
+    <option name="LAST_COMMIT_MESSAGE" value="I fixed the conflicts from part 1." />
   </component>
 </project>
