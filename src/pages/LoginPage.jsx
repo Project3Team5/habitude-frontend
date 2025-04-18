@@ -7,7 +7,7 @@ const LoginPage = () => {
             <h2 className= "form-title" >Log in with </h2>
             <div className= "social-login">
                 <button className= "social-button">
-                    <img src="google.svg" alt="Google" className="social-icon" /> {/* Comming soon */}
+                    <img src="google.svg" alt="Google" className="social-icon" /> {/* Comming soon - for more information press a */}
                     Google
                 </button>
                 <button className= "social-button">
@@ -26,7 +26,7 @@ const LoginPage = () => {
             <div className='input-wrapper'>
                 <input type="password" placeholder="Password"
                        className='input-field' required/>
-                <i className="material-symbols-rounded">Lock</i>
+                <i className="material-symbols-rounded">lock</i>
             </div>
             <a href='#' className='forgot-pass-link'>forgot Password?</a>
 
