@@ -1,7 +1,11 @@
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, TextInput } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View, TextInput, Platform } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 const CreateSubject = () => {
+  const [name, setName] = useState("");
+  const [dob, setDob] = useState(null);
+  const [notes, setNotes] = useState("");
 
   const handleCreateSubject = () => {
     alert("Pressed button to create a new subject.");
@@ -11,21 +15,37 @@ const CreateSubject = () => {
     <View style={styles.container}>
       <Text>This is the "Creating New Subject" Page</Text>
 
-      <Text>Name:</Text>
-      <TextInput
-      placeholder="Enter Subject's Name"
-      />
+      {/* Temporary breaks */}
+      <br></br>
+      <View>
+        <Text style={styles.label}>Name:</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Subject's Name"
+          value={name}
+          onChangeText={setName}
+        />
 
-      <Text>Age:</Text>
-      <TextInput
-      placeholder="Enter Age"
-      keyboardType="numeric"
-      />
+        {/* Not Working as Intended */}
+        <Text style={styles.label}>Date of Birth:</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter Date of Birth"
+          keyboardType="numeric"
+          value={dob}
+          onChangeText={setDob}
+        />
 
-      <Text>Notes</Text>
-      <TextInput
-      placeholder="Enter any additional notes (Optional)"
-      />
+        <Text style={styles.label}>Notes</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Enter any additional notes (Optional)"
+          multiline
+          numberOfLines={6}
+          value={notes}
+          onChangeText={setNotes}
+        />
+      </View>
 
       <TouchableOpacity style={styles.button} onPress={handleCreateSubject}>
         <Text style={styles.buttonText}>Create New Subject</Text>
@@ -49,6 +69,17 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 15,
     color: "#fff",
+  },
+  label: {
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  input: {
+    width: "100%",
+    padding: 10,
+    borderWidth: 1,
+    borderRadius: 5,
+    fontSize: 14,
   },
 });
 
