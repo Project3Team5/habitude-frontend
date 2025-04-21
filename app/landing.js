@@ -9,8 +9,8 @@ const Landing = () => {
     router.push("/logObservation");
   };
 
-  const handleViewSubjects = () => {
-    alert("Pressed button to view added dependents.");
+  const handleViewSubject = () => {
+    router.push("/specificSubject");
   };
 
   const handleCreateSubjects = () => {
@@ -29,8 +29,8 @@ const Landing = () => {
         <Text style={styles.buttonText}>Log New Observation</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={handleViewSubjects}>
-        <Text style={styles.buttonText}>View Dependents</Text>
+      <TouchableOpacity style={styles.button} onPress={handleViewSubject}>
+        <Text style={styles.buttonText}>View Dependent</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={handleCreateSubjects}>
