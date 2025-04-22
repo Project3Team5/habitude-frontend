@@ -69,10 +69,11 @@ const LoginPage = () => {
 
         <Text style={styles.signupText}>
           Don’t have an account?{" "}
-          <TouchableOpacity style={styles.signupLink}>
-            Signup now
+          <TouchableOpacity>
+            <Text style={styles.signupLink}>Signup now</Text>
           </TouchableOpacity>
         </Text>
+        
       </View>
     </View>
   );
@@ -92,10 +93,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
     borderRadius: 8,
     padding: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
+    boxShadowColor: "#000",
+    boxShadowOffset: { width: 0, height: 10 },
+    boxShadowOpacity: 0.1,
+    boxShadowRadius: 20,
     elevation: 5,
   },
   formTitle: {
