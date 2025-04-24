@@ -1,7 +1,10 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRouter } from 'expo-router';
+
 
 const SpecificSubject = () => {
+  const router = useRouter();
 
   const handleCreateObservation = () => {
     router.push("/logObservation");
@@ -20,16 +23,16 @@ const SpecificSubject = () => {
   };
 
   const handleCreateGoal = () => {
-    alert("Pressed button to create a goal.");
+    router.push("/createGoal");
   };
 
   const handleCreateTreatment = () => {
-    alert("Pressed button to create a treatment plan.");
+    router.push("/createTreatmentPlan");
   };
 
   return (
     <View style={styles.container}>
-      <Text>This is the subject for when a specific person is chosen.</Text>
+      <Text>This is the page for when a specific subject is chosen.</Text>
 
       <TouchableOpacity style={styles.button} onPress={handleCreateObservation}>
         <Text style={styles.buttonText}>Log New Observation</Text>
