@@ -4,7 +4,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 const SpecificSubject = () => {
 
   const handleCreateObservation = () => {
-    alert("Pressed button to log a new observation.");
+    router.push("/logObservation");
   };
 
   const handleEditObservation = () => {

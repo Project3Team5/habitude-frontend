@@ -1,22 +1,24 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRouter } from 'expo-router';
 
 const Landing = () => {
+  const router = useRouter();
 
   const handleCreateObservation = () => {
-    alert("Pressed button to log new observation.");
+    router.push("/logObservation");
   };
 
-  const handleViewSubjects = () => {
-    alert("Pressed button to view current subjects.");
+  const handleViewSubject = () => {
+    router.push("/specificSubject");
   };
 
   const handleCreateSubjects = () => {
-    alert("Pressed button to create new subject.");
+    router.push("/createSubject");
   };
 
   const handleSettings = () => {
-    alert("Pressed button to go to settings.");
+    router.push("/settings");
   };
 
   return (
@@ -27,12 +29,12 @@ const Landing = () => {
         <Text style={styles.buttonText}>Log New Observation</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={handleViewSubjects}>
-        <Text style={styles.buttonText}>View Subjects</Text>
+      <TouchableOpacity style={styles.button} onPress={handleViewSubject}>
+        <Text style={styles.buttonText}>View Dependent</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={handleCreateSubjects}>
-        <Text style={styles.buttonText}>Create New Subject</Text>
+        <Text style={styles.buttonText}>Create New Dependent</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={handleSettings}>

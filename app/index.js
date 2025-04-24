@@ -1,14 +1,20 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRouter } from 'expo-router';
 
 const Index = () => {
+  const router = useRouter();
 
   const handleLogin = () => {
-    alert("Pressed button to log in.");
+    router.push("/LoginPage");
   };
 
   const handleSignup = () => {
-    alert("Pressed button to sign up.");
+    alert("** (Work In Progress) Sign up Page **");
+  };
+
+  const handleLandingPage = () => {
+    router.push("/landing");
   };
 
   return (
@@ -21,6 +27,10 @@ const Index = () => {
 
       <TouchableOpacity style={styles.button} onPress={handleSignup}>
         <Text style={styles.buttonText}>Sign Up</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.button} onPress={handleLandingPage}>
+        <Text style={styles.buttonText}>Temporary Landing Page</Text>
       </TouchableOpacity>
     </View>
   );
