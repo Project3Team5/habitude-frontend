@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
+import { useRouter } from 'expo-router';
+
 import {
   View,
   Text,
@@ -7,16 +9,60 @@ import {
   Image,
   StyleSheet,
 } from "react-native";
+import { login as authLogin } from "../app/AuthService";
 
 const LoginPage = () => {
+  const router = useRouter();
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+  const loginButton = () => {
+    let valid = true;
+
+
+    if (!validateEmail(email)) {
+      setEmailError("Please enter a valid email.");
+      valid = false;
+    }
+
+    if (!password) {
+      setPasswordError("Password cannot be empty.");
+      valid = false;
+    } else {
+      setPasswordError("");
+    }
+
+    if (valid) {
+      authLogin(email, password);
+      router.push("/landing");
+    }};
+
+
+
+// Placeholder for future OAuth login
+
+  const GoogleButton = () => {
+
+    alert("** GoogleButton in Progress  **");
+    // Proceed with login logic
+  };
+
   return (
     <View style={styles.container}>
-      <View style={styles.loginContainer}>
+      <View style={styles.loginContainer} >
         <Text style={styles.formTitle}>Log in with</Text>
 
+
         <View style={styles.socialLogin}>
-          <TouchableOpacity style={styles.socialButton}>
-            <Image
+          <TouchableOpacity style={styles.socialButton} onPress={GoogleButton} >
+            <Image         // Placeholder for future OAuth login
               source={require("../assets/images/google.png")}
               style={styles.socialIcon}
             />
@@ -45,8 +91,12 @@ const LoginPage = () => {
             placeholderTextColor="#a385e0"
             keyboardType="email-address"
             autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
             required
+            // add Email required and EmailError
           />
+          {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
         </View>
 
         <View style={styles.inputWrapper}>
@@ -55,7 +105,10 @@ const LoginPage = () => {
             placeholder="Password"
             placeholderTextColor="#a385e0"
             secureTextEntry
+            value={password}
+            onChangeText={setPassword}
             required
+              // add password required and passwordError
           />
         </View>
 
@@ -63,7 +116,7 @@ const LoginPage = () => {
           <Text style={styles.forgotPassword}>Forgot Password?</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.loginButton}>
+        <TouchableOpacity style={styles.loginButton} onPress={loginButton}>
           <Text style={styles.loginText}>Log in</Text>
         </TouchableOpacity>
 
@@ -73,7 +126,7 @@ const LoginPage = () => {
             <Text style={styles.signupLink}>Signup now</Text>
           </TouchableOpacity>
         </Text>
-        
+
       </View>
     </View>
   );
