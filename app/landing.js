@@ -13,7 +13,7 @@ const Landing = () => {
     router.push("/specificSubject");
   };
 
-  const handleCreateSubjects = () => {
+  const handleCreateSubject = () => {
     router.push("/createSubject");
   };
 
@@ -30,11 +30,11 @@ const Landing = () => {
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={handleViewSubject}>
-        <Text style={styles.buttonText}>View Dependent</Text>
+        <Text style={styles.buttonText}>View Subject</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.button} onPress={handleCreateSubjects}>
-        <Text style={styles.buttonText}>Create New Dependent</Text>
+      <TouchableOpacity style={styles.button} onPress={handleCreateSubject}>
+        <Text style={styles.buttonText}>Create New Subject</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.button} onPress={handleSettings}>

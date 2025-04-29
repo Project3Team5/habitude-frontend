@@ -44,6 +44,10 @@ const LoginPage = () => {
       router.push("/landing");
     }};
 
+  const handleSignup = () => {
+    alert("** Pressed button to sign up**");
+  };
+
 
 
 // Placeholder for future OAuth login
@@ -126,7 +130,6 @@ const LoginPage = () => {
           </Text>
         </TouchableOpacity>
 
-
       </View>
     </View>
   );
@@ -194,7 +197,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginHorizontal: 15,
     fontWeight: "500",
-    fontSize: "1.06rem",
+    fontSize: 17,
     color: "#333",
   },
   inputWrapper: {
@@ -244,6 +247,7 @@ const styles = StyleSheet.create({
   signupLink: {
     color: "#5F41E4",
     fontWeight: "500",
+    textDecorationLine: 'underline',
   },
 });
 
