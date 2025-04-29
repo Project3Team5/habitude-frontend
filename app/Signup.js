@@ -146,10 +146,6 @@ const Signup = () => {
 
                 </View>
 
-                <TouchableOpacity>
-                    <Text style={styles.forgotPassword}>Forgot Password?</Text>
-                </TouchableOpacity>
-
                 <TouchableOpacity style={styles.loginButton} onPress={signupButton}>
                     <Text style={styles.loginText}>Sign up</Text>
                 </TouchableOpacity>
