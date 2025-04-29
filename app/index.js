@@ -10,7 +10,8 @@ const Index = () => {
   };
 
   const handleSignup = () => {
-    alert("** (Work In Progress) Sign up Page **");
+    router.push("/Signup");
+    //alert("** (Work In Progress) Sign up Page **");
   };
 
   const handleLandingPage = () => {
