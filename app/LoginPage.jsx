@@ -124,10 +124,11 @@ const LoginPage = () => {
           <Text style={styles.loginText}>Log in</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity onPress={() => router.push("/Signup")}>
           <Text style={styles.signupText}>
-            Don’t have an account?{" "}
-            <Text style={styles.signupLink} onPress={handleSignup}>Signup now</Text>
+            Don’t have an account? <Text style={styles.signupLink}>Signup now</Text>
           </Text>
+        </TouchableOpacity>
 
       </View>
     </View>
