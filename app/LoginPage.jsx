@@ -120,12 +120,12 @@ const LoginPage = () => {
           <Text style={styles.loginText}>Log in</Text>
         </TouchableOpacity>
 
-        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-          <Text style={styles.signupText}>Don’t have an account? </Text>
-          <TouchableOpacity onPress={() => router.push("/Signup")}>
-            <Text style={styles.signupLink}>Signup now</Text>
-          </TouchableOpacity>
-        </View>
+        <Text style={styles.signupText}></Text>
+          Don’t have an account?{" "}
+            <TouchableOpacity onPress={()=> router.push("/Signup")}>
+              <Text style={styles.signupLink}>Signup now</Text>
+            </TouchableOpacity>
+        </Text><Text
 
 
       </View>
