@@ -33,14 +33,14 @@ const ObservationChart = () => {
     .catch(error => console.error('Error fetching data: ', error));
   }, []);
   if (!chartData) {
-    return <div>Loading...</div>;
+    return <Text>Loading...</Text>;
   }
 
   return (
-    <div>
-      <h2>Trend Data</h2>
+    <View>
+      <Text>Trend Data</Text>
       <Line data={chartData} />
-    </div>
+    </View>
   );
 };
 
