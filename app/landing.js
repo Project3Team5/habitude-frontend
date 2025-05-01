@@ -7,26 +7,14 @@ import { useRouter, Link } from "expo-router";
 import WebGeneralHeader from "../components/webGeneralHeader";
 import WebFooter from "../components/webFooter";
 import Pagination from "../components/pagination";
+import { useSubjects } from "../contexts/SubjectsContext";
+
 
 const Landing = () => {
-   // temporary data
-   const [subjects, setSubjects] = useState([
-      { id: 1, name: "John Doe", dob: "1990-04-12" },
-      { id: 2, name: "Jane Smith", dob: "1985-07-23" },
-      { id: 3, name: "Alice Johnson", dob: "2000-01-15" },
-      { id: 4, name: "Bob Williams", dob: "1978-09-30" },
-      { id: 5, name: "Charlie Brown", dob: "1995-12-05" },
-      { id: 1, name: "John Doe", dob: "1990-04-12" },
-      { id: 2, name: "Jane Smith", dob: "1985-07-23" },
-      { id: 3, name: "Alice Johnson", dob: "2000-01-15" },
-      { id: 4, name: "Bob Williams", dob: "1978-09-30" },
-      { id: 5, name: "Charlie Brown", dob: "1995-12-05" },
-   ]);
-
+   const { subjects } = useSubjects();
    const router = useRouter();
    const scrollRef = useRef(null);
    const [isHovered, setIsHovered] = useState(false);
-
    const [page, setPage] = useState(0);
    const PAGE_SIZE = 5;
 

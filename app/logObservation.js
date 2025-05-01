@@ -1,21 +1,55 @@
-import React, { useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, TextInput, Platform, Button } from "react-native";
+import React, { useState, useRef } from "react";
+import { StyleSheet, Text, TouchableOpacity, View, TextInput, Platform, Button, ScrollView } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import dayjs from "dayjs";
-import RNPickerSelect from 'react-native-picker-select';
+import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
+import { MenuProvider } from "react-native-popup-menu";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import RNPickerSelect from "react-native-picker-select";
+import WebGeneralHeader from "../components/webGeneralHeader";
+import WebFooter from "../components/webFooter";
+import { useSubjects } from "../contexts/SubjectsContext";
 
 const LogObservation = () => {
-  const [selectedSubject, setSelectedSubject] = useState(null);
+  const { subjects, addObservation } = useSubjects();
+  const router = useRouter();
+  const scrollRef = useRef(null);
+  const params = useLocalSearchParams();
+
+  const [selectedSubjectId, setSelectedSubjectId] = useState(
+    params.subjectId ? parseInt(params.subjectId) : null
+  );
   const [behavior, setBehavior] = useState("");
   const [context, setContext] = useState("");
   const [date, setDate] = useState(new Date());
-  const [duration, setDuration] = useState(null);
-  const [frequency, setFrequency] = useState(null);
+  const [duration, setDuration] = useState("");
+  const [frequency, setFrequency] = useState("");
   const [selectedIntensity, setSelectedIntensity] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
 
   const handleCreateObservation = () => {
-    alert(`Logging New Observation`);
+    if (!selectedSubjectId) {
+      alert("Please select a subject!");
+      return;
+    }
+
+    const newObservation = {
+      id: Date.now(),
+      behavior,
+      context,
+      timestamp: date,
+      duration: parseInt(duration || "0"),
+      frequency: parseInt(frequency || "0"),
+      intensity: selectedIntensity,
+    };
+
+    addObservation(selectedSubjectId, newObservation);
+    setBehavior("");
+    setContext("");
+    setDate(new Date());
+    setDuration("");
+    setFrequency("");
+    setSelectedIntensity(null);
   };
 
   const handleDateChange = (event, selectedDate) => {
@@ -26,147 +60,140 @@ const LogObservation = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text>This is the Log Observation Page</Text>
-
-      <View style={styles.inputContainer}>
-
-        {/* Going to need to iterate over every subject created from user */}
-        <View>
-          <Text style={styles.label}>Subject</Text>
-          <RNPickerSelect
-            onValueChange={(value) => setSelectedSubject(value)}
-            items={[
-              { label: "Charles", value: "Charles" },
-              { label: "Jimmy", value: "Jimmy" },
-              { label: "Jeff", value: "Jeff" },
-            ]}
-            placeholder={{ label: 'Select Subject...', value: null }}
-            style={styles.input}
-          />
-        </View>
-
-        <View>
-          <Text style={styles.label}>Behavior</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Description of Behavior Observed"
-            multiline
-            numberOfLines={6}
-            value={behavior}
-            onChangeText={setBehavior}
-          />
-        </View>
-
-        <View>
-          <Text style={styles.label}>Context</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Additional Context (Time, Place, Situation)"
-            multiline
-            numberOfLines={6}
-            value={context}
-            onChangeText={setContext}
-          />
-        </View>
-
-        <View>
-          <Text style={styles.label}>Timestamp</Text>
-          {Platform.OS === "web" ? (
-            <input
-              type="date"
-              value={dayjs(date).format("YYYY-MM-DD")}
-              max="9999-12-31"
-              onChange={(e) => {
-                const inputValue = e.target.value;
-                const isValid = dayjs(inputValue).isValid();
-                if (isValid) {
-                  setDate(dayjs(inputValue).toDate());
-                }
-              }}
-            />
-          ) : (
-            <>
-              <Button title="Pick Date" onPress={() => setShowPicker(true)} />
-              <Text>{dayjs(date).format("MMM D, YYYY")}</Text>
-              {showPicker && (
-                <DateTimePicker
-                  value={date}
-                  mode="date"
-                  onChange={handleDateChange}
-                  maximumDate={new Date()}
+    <MenuProvider>
+      <SafeAreaProvider>
+        <SafeAreaView style={styles.container}>
+          <ScrollView ref={scrollRef} contentContainerStyle={styles.scrollContent}>
+            <WebGeneralHeader />
+            <View style={styles.bodyContainer}>
+              <Text style={styles.sectionTitle}>Log a New Observation</Text>
+              <View style={styles.inputContainer}>
+                <Text style={styles.label}>Subject</Text>
+                <RNPickerSelect
+                  onValueChange={(value) => setSelectedSubjectId(value)}
+                  items={subjects.map((subject) => ({
+                    label: subject.name,
+                    value: subject.id,
+                  }))}
+                  value={selectedSubjectId}
+                  placeholder={{ label: "Select Subject...", value: null }}
+                  style={{ inputAndroid: styles.input, inputIOS: styles.input }}
                 />
-              )}
-            </>
-          )}
-        </View>
 
-        <View>
-          <Text style={styles.label}>Duration in Seconds (If Applicable)</Text>
-          <TextInput
-            style={styles.input}
-            value={duration}
-            onChangeText={setDuration}
-            keyboardType="numeric"
-            placeholder="0"
-          />
-        </View>
+                <Text style={styles.label}>Behavior</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Description of Behavior Observed"
+                  multiline
+                  numberOfLines={4}
+                  value={behavior}
+                  onChangeText={setBehavior}
+                />
 
-        <View>
-          <Text style={styles.label}>Frequency Count if Logged in Batches (Optional)</Text>
-          <TextInput
-            style={styles.input}
-            value={frequency}
-            onChangeText={setFrequency}
-            keyboardType="numeric"
-            placeholder="0"
-          />
-        </View>
+                <Text style={styles.label}>Context</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Additional Context (Time, Place, Situation)"
+                  multiline
+                  numberOfLines={4}
+                  value={context}
+                  onChangeText={setContext}
+                />
 
-        <View>
-          <Text style={styles.label}>Intensity Level</Text>
-          <RNPickerSelect
-            onValueChange={(value) => setSelectedIntensity(value)}
-            items={[
-              { label: "Low", value: "Low" },
-              { label: "Medium", value: "Medium" },
-              { label: "High", value: "High" },
-            ]}
-            placeholder={{ label: 'Select Intensity Level...', value: null }}
-            style={styles.input}
-          />
-        </View>
+                <Text style={styles.label}>Timestamp</Text>
+                {Platform.OS === "web" ? (
+                  <input
+                    type="date"
+                    value={dayjs(date).format("YYYY-MM-DD")}
+                    onChange={(e) => {
+                      const isValid = dayjs(e.target.value).isValid();
+                      if (isValid) {
+                        setDate(dayjs(e.target.value).toDate());
+                      }
+                    }}
+                  />
+                ) : (
+                  <>
+                    <Button title="Pick Date" onPress={() => setShowPicker(true)} />
+                    <Text>{dayjs(date).format("MMM D, YYYY")}</Text>
+                    {showPicker && (
+                      <DateTimePicker
+                        value={date}
+                        mode="date"
+                        onChange={handleDateChange}
+                        maximumDate={new Date()}
+                      />
+                    )}
+                  </>
+                )}
 
-      </View>
+                <Text style={styles.label}>Duration in Seconds</Text>
+                <TextInput
+                  style={styles.input}
+                  value={duration}
+                  onChangeText={setDuration}
+                  keyboardType="numeric"
+                  placeholder="0"
+                />
 
-      <TouchableOpacity style={styles.button} onPress={handleCreateObservation}>
-        <Text style={styles.buttonText}>Log New Observation</Text>
-      </TouchableOpacity>
-    </View>
+                <Text style={styles.label}>Frequency Count (Optional)</Text>
+                <TextInput
+                  style={styles.input}
+                  value={frequency}
+                  onChangeText={setFrequency}
+                  keyboardType="numeric"
+                  placeholder="0"
+                />
+
+                <Text style={styles.label}>Intensity</Text>
+                <RNPickerSelect
+                  onValueChange={(value) => setSelectedIntensity(value)}
+                  items={[
+                    { label: "Low", value: "Low" },
+                    { label: "Medium", value: "Medium" },
+                    { label: "High", value: "High" },
+                  ]}
+                  value={selectedIntensity}
+                  placeholder={{ label: "Select Intensity Level...", value: null }}
+                  style={{ inputAndroid: styles.input, inputIOS: styles.input }}
+                />
+              </View>
+
+              <TouchableOpacity style={styles.button} onPress={handleCreateObservation}>
+                <Text style={styles.buttonText}>Log New Observation</Text>
+              </TouchableOpacity>
+            </View>
+            <WebFooter />
+          </ScrollView>
+        </SafeAreaView>
+      </SafeAreaProvider>
+    </MenuProvider>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 80,
-    alignItems: "center",
-    justifyContent: "flex-start",
-    backgroundColor: "#fff",
+    backgroundColor: "#F7F7F7",
+    minHeight: "100%",
   },
-  button: {
-    backgroundColor: "#227755",
-    padding: 10,
-    borderRadius: 10,
-    marginTop: 20,
+  scrollContent: {
+    flexGrow: 1,
   },
-  buttonText: {
-    fontSize: 15,
-    color: "#fff",
+  bodyContainer: {
+    paddingHorizontal: "14%",
+    paddingVertical: 30,
+  },
+  sectionTitle: {
+    color: "#152A51",
+    fontWeight: "bold",
+    fontSize: 25,
+    marginBottom: 15,
   },
   label: {
     fontWeight: "bold",
     marginBottom: 5,
+    color: "#152A51",
   },
   inputContainer: {
     width: "80%",
@@ -177,6 +204,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     fontSize: 14,
+    marginBottom: 15,
+  },
+  button: {
+    backgroundColor: "#227755",
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  buttonText: {
+    fontSize: 15,
+    color: "#fff",
+    textAlign: "center",
   },
 });
 
