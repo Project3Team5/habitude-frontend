@@ -1,65 +1,233 @@
-import React from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import React, { useState, useRef } from "react";
+import { StyleSheet, Text, TouchableOpacity, View, Platform, ScrollView, Image, Pressable } from "react-native";
+import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
+import { MenuProvider, Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu";
+import dayjs from "dayjs";
+import { useRouter, Link } from "expo-router";
+import WebGeneralHeader from "../components/webGeneralHeader";
+import WebFooter from "../components/webFooter";
+import Pagination from "../components/pagination";
 
 const Landing = () => {
-  const router = useRouter();
+   // temporary data
+   const [subjects, setSubjects] = useState([
+      { id: 1, name: "John Doe", dob: "1990-04-12" },
+      { id: 2, name: "Jane Smith", dob: "1985-07-23" },
+      { id: 3, name: "Alice Johnson", dob: "2000-01-15" },
+      { id: 4, name: "Bob Williams", dob: "1978-09-30" },
+      { id: 5, name: "Charlie Brown", dob: "1995-12-05" },
+      { id: 1, name: "John Doe", dob: "1990-04-12" },
+      { id: 2, name: "Jane Smith", dob: "1985-07-23" },
+      { id: 3, name: "Alice Johnson", dob: "2000-01-15" },
+      { id: 4, name: "Bob Williams", dob: "1978-09-30" },
+      { id: 5, name: "Charlie Brown", dob: "1995-12-05" },
+   ]);
 
-  const handleCreateObservation = () => {
-    router.push("/logObservation");
-  };
+   const router = useRouter();
+   const scrollRef = useRef(null);
+   const [isHovered, setIsHovered] = useState(false);
 
-  const handleViewSubject = () => {
-    router.push("/specificSubject");
-  };
+   const [page, setPage] = useState(0);
+   const PAGE_SIZE = 5;
 
-  const handleCreateSubject = () => {
-    router.push("/createSubject");
-  };
+   const paginatedUsers = subjects.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  const handleSettings = () => {
-    router.push("/settings");
-  };
+   const handleEditSubject = (id) => {
+      alert(`Edit Subject with ID: #${id}`);
+   };
 
-  return (
-    <View style={styles.container}>
-      <Text>Welcome to the Main Page</Text>
+   const handleDeleteSubject = (id) => {
+      alert(`"Delete Subject with ID: #${id}`);
+   };
 
-      <TouchableOpacity style={styles.button} onPress={handleCreateObservation}>
-        <Text style={styles.buttonText}>Log New Observation</Text>
-      </TouchableOpacity>
+   const handleViewSpecificSubject = (id, name) => {
+      router.push({ pathname: "/specificSubject", params: { subjectId: id, name }, });
+   };
 
-      <TouchableOpacity style={styles.button} onPress={handleViewSubject}>
-        <Text style={styles.buttonText}>View Subject</Text>
-      </TouchableOpacity>
+   const renderSubjectItem = ({ item }) => (
+      <Pressable
+         onPress={() => handleViewSpecificSubject(item.id, item.name)}
+         onHoverIn={() => setIsHovered(true)}
+         onHoverOut={() => setIsHovered(false)}
+         style={({ hovered }) => [styles.userBox, hovered && styles.userBoxHover]}
+      >
+         <View style={styles.userData}>
+            <Image
+               source={require("../assets/images/accountProfile.png")}
+               style={styles.profileImage}
+            />
+            <View>
+               <Text style={styles.subjectText}>{item.name}</Text>
+               <Text style={styles.dobText}>
+                  Born {dayjs(item.dob).format("MMMM D, YYYY")}
+               </Text>
+            </View>
+         </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleCreateSubject}>
-        <Text style={styles.buttonText}>Create New Subject</Text>
-      </TouchableOpacity>
+         <Menu style={styles.kebabMenu}>
+            <MenuTrigger>
+               <Text style={styles.menuTrigger}>⋮</Text>
+            </MenuTrigger>
+            <MenuOptions style={styles.menuStyle}>
+               <MenuOption onSelect={() => handleEditSubject(item.id)}>
+                  <Text style={styles.menuOption}>Edit</Text>
+               </MenuOption>
+               <MenuOption onSelect={() => handleDeleteSubject(item.id)}>
+                  <Text style={styles.menuOption}>Delete</Text>
+               </MenuOption>
+            </MenuOptions>
+         </Menu>
+      </Pressable>
+   );
 
-      <TouchableOpacity style={styles.button} onPress={handleSettings}>
-        <Text style={styles.buttonText}>Settings</Text>
-      </TouchableOpacity>
-    </View>
-  );
-}
+   if (Platform.OS === "web") {
+      return (
+         <MenuProvider>
+            <SafeAreaProvider>
+               <SafeAreaView style={styles.container}>
+                  <ScrollView ref={scrollRef} contentContainerStyle={styles.scrollContent}>
+                     {/* Header */}
+                     <WebGeneralHeader />
+
+                     <View style={styles.bodyContainer}>
+                        <Text style={styles.sectionTitle}>Your Subjects</Text>
+                        {subjects.length === 0 ? (
+                           <Link href="/createSubject" style={styles.noSubjectsTitle}>
+                              <Text>Create Your First Subject</Text>
+                           </Link>
+
+                        ) : (
+                           <>
+                              {/* Manual map for pagination */}
+                              {paginatedUsers.map((item) => renderSubjectItem({ item }))}
+
+                              {/* Pagination Buttons */}
+                              <Pagination
+                                 currentPage={page}
+                                 totalItems={subjects.length}
+                                 pageSize={PAGE_SIZE}
+                                 onPageChange={setPage}
+                                 scrollRef={scrollRef}
+                              />
+
+                           </>
+                        )}
+                     </View>
+
+                     {/* Footer */}
+                     <WebFooter />
+                  </ScrollView>
+               </SafeAreaView>
+            </SafeAreaProvider>
+         </MenuProvider>
+      );
+   } else {
+      return (
+         <SafeAreaProvider>
+            <SafeAreaView>
+               <Text>Welcome to the Main Page</Text>
+               <TouchableOpacity style={styles.button} onPress={handleCreateObservation}>
+                  <Text style={styles.buttonText}>Log New Observation</Text>
+               </TouchableOpacity>
+               <TouchableOpacity style={styles.button} onPress={handleCreateSubject}>
+                  <Text style={styles.buttonText}>Create New Subject</Text>
+               </TouchableOpacity>
+               <TouchableOpacity style={styles.button} onPress={handleSettings}>
+                  <Text style={styles.buttonText}>Settings</Text>
+               </TouchableOpacity>
+            </SafeAreaView>
+         </SafeAreaProvider>
+      );
+   }
+};
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  button: {
-    backgroundColor: "#227755",
-    padding: 10,
-    borderRadius: 10,
-    marginTop: 10,
-  },
-  buttonText: {
-    fontSize: 15,
-    color: "#fff",
-  },
+   container: {
+      flex: 1,
+      backgroundColor: "#F7F7F7",
+      minHeight: "100%",
+   },
+   scrollContent: {
+      flexGrow: 1,
+   },
+   bodyContainer: {
+      paddingHorizontal: "14%",
+      paddingVertical: 30,
+   },
+   sectionTitle: {
+      color: "#152A51",
+      fontWeight: "bold",
+      fontSize: 25,
+      marginBottom: 15,
+   },
+   noSubjectsTitle: {
+      color: "#3265C3",
+      fontSize: 18,
+      marginBottom: 15,
+      // textAlign: "center",
+      textDecorationLine: "underline",
+   },
+   button: {
+      backgroundColor: "#227755",
+      padding: 10,
+      borderRadius: 10,
+      marginTop: 10,
+   },
+   buttonText: {
+      fontSize: 15,
+      color: "#fff",
+      textAlign: "center",
+   },
+   userBox: {
+      // backgroundColor: "#fff",
+      padding: 25,
+      marginBottom: 20,
+      borderRadius: 10,
+      boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.1)",
+      flexDirection: "row",
+      justifyContent: "space-between",
+      transitionDuration: "200ms",
+   },
+   userBoxHover: {
+      backgroundColor: "#fff",
+      boxShadow: "0px 2px 4px 0px rgba(0, 0, 0, 0.2)",
+      cursor: "pointer",
+   },
+   subjectText: {
+      fontWeight: 600,
+      marginBottom: 3,
+      fontSize: 16,
+   },
+   dobText: {
+      fontSize: 16,
+   },
+   menuTrigger: {
+      color: "#152A51",
+      fontSize: 20,
+      paddingHorizontal: 10,
+      fontWeight: "bold",
+   },
+   menuStyle: {
+      padding: 5,
+   },
+   menuOption: {
+      padding: 10,
+      fontSize: 16,
+   },
+   profileImage: {
+      width: 35,
+      height: 35,
+      resizeMode: "contain",
+      marginRight: 15,
+      alignSelf: "center",
+   },
+   kebabMenu: {
+      flexDirection: "row",
+      alignItems: "center",
+   },
+   userData: {
+      flexDirection: "row",
+   },
 });
 
 export default Landing;
