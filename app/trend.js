@@ -1,13 +1,14 @@
 import React from 'react';
+import { Text, View, } from 'react-native';
 import ObservationChart from './ObservationChart';
 
 const TrendPage = () => {
-  return {
-    <div style={{ padding: "20px" }}>
-      <h1>Behavior Observation Trends</h1>
+  return (
+    <View>
+      <Text>Behavior Observation Trends</Text>
       <ObservationChart />
-    </div>
-  };
+    </View>
+  );
 };
 
 export default TrendPage;
