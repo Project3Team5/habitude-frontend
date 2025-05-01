@@ -178,7 +178,6 @@ const styles = StyleSheet.create({
    },
    navDivider: {
       marginRight: 16,
-      marginBottom: 8,
    },
    navButton: {
       color: "#fff",
