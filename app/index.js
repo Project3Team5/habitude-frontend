@@ -71,9 +71,9 @@ const Index = () => {
                 <Text style={styles.signupButtonText}>Get Started</Text>
               </TouchableOpacity>
 
-              {/* <TouchableOpacity style={styles.loginButton} onPress={handleLandingPage}>
+              <TouchableOpacity style={styles.loginButton} onPress={handleLandingPage}>
                 <Text style={styles.loginButtonText}>Temporary Landing Page</Text>
-              </TouchableOpacity> */}
+              </TouchableOpacity>
             </View>
 
             <View style={styles.stepContentContainer}>
