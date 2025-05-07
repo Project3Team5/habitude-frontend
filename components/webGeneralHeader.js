@@ -55,6 +55,7 @@ const WebGeneralHeader = () => {
                <Image
                   source={require("../assets/images/Habitude-White-Logo.png")}
                   style={styles.headerLogo}
+                  resizeMode="contain"
                />
             </Pressable>
          </View>
@@ -85,11 +86,13 @@ const WebGeneralHeader = () => {
                         <Image
                            source={require("../assets/images/accountProfile.png")}
                            style={styles.profileImage}
+                           resizeMode="contain"
                         />
                         <Text style={styles.accountText}>My Account</Text>
                         <Image
                            source={require("../assets/images/blue-dropdown.png")}
                            style={styles.navImage}
+                           resizeMode="contain"
                         />
                      </View>
                   </MenuTrigger>
@@ -104,6 +107,7 @@ const WebGeneralHeader = () => {
                            <Image
                               source={require("../assets/images/Settings.png")}
                               style={styles.profileImage}
+                              resizeMode="contain"
                            />
                            <Text style={styles.menuOptionText}>Settings</Text>
                         </View>
@@ -113,6 +117,7 @@ const WebGeneralHeader = () => {
                            <Image
                               source={require("../assets/images/Logout.png")}
                               style={styles.profileImage}
+                              resizeMode="contain"
                            />
                            <Text style={styles.menuOptionText}>Log Out</Text>
                         </View>
@@ -151,7 +156,6 @@ const styles = StyleSheet.create({
       width: logoWidth,
       height: undefined,
       marginVertical: 8,
-      resizeMode: "contain",
    },
    navbar: {
       backgroundColor: "#3265C3",
@@ -205,12 +209,10 @@ const styles = StyleSheet.create({
    profileImage: {
       width: 20,
       height: 20,
-      resizeMode: "contain",
    },
    navImage: {
       width: 15,
       height: 15,
-      resizeMode: "contain",
    },
    menuStyle: {
       backgroundColor: "#DFE7F6",

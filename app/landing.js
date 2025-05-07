@@ -1,49 +1,57 @@
-import React, { useState, useRef } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, Platform, ScrollView, Image, Pressable } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { StyleSheet, Text, TouchableOpacity, View, Platform, ScrollView, Image, Pressable, ActivityIndicator } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import { MenuProvider, Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu";
 import dayjs from "dayjs";
+import axios from "axios";
 import { useRouter, Link } from "expo-router";
 import WebGeneralHeader from "../components/webGeneralHeader";
 import WebFooter from "../components/webFooter";
 import Pagination from "../components/pagination";
 
 const Landing = () => {
-   // temporary data
-   const [subjects, setSubjects] = useState([
-      { id: 1, name: "John Doe", dob: "1990-04-12" },
-      { id: 2, name: "Jane Smith", dob: "1985-07-23" },
-      { id: 3, name: "Alice Johnson", dob: "2000-01-15" },
-      { id: 4, name: "Bob Williams", dob: "1978-09-30" },
-      { id: 5, name: "Charlie Brown", dob: "1995-12-05" },
-      { id: 1, name: "John Doe", dob: "1990-04-12" },
-      { id: 2, name: "Jane Smith", dob: "1985-07-23" },
-      { id: 3, name: "Alice Johnson", dob: "2000-01-15" },
-      { id: 4, name: "Bob Williams", dob: "1978-09-30" },
-      { id: 5, name: "Charlie Brown", dob: "1995-12-05" },
-   ]);
-
+   const [subjects, setSubjects] = useState([]);
    const router = useRouter();
    const scrollRef = useRef(null);
    const [isHovered, setIsHovered] = useState(false);
+   const [loading, setLoading] = useState(true);
+
+   useEffect(() => {
+      const handleGetSubjectsData = async () => {
+         try {
+            const response = await axios.get(`http://localhost:8080/api/users/${userID}/subjects`);
+            setSubjects(response.data);
+         } catch (error) {
+            console.log("Error getting subjects from user: ", error);
+         } finally {
+            setLoading(false);
+         }
+      };
+
+      handleGetSubjectsData();
+   }, []);
 
    const [page, setPage] = useState(0);
    const PAGE_SIZE = 5;
 
    const paginatedUsers = subjects.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
+   // Editing/Updating the selected subjected in the database
    const handleEditSubject = (id) => {
       alert(`Edit Subject with ID: #${id}`);
    };
 
+   // Deleting the selected subject from the database
    const handleDeleteSubject = (id) => {
       alert(`"Delete Subject with ID: #${id}`);
    };
 
+   // Viewing the observation data and more of a clicked on subject
    const handleViewSpecificSubject = (id, name) => {
       router.push({ pathname: "/specificSubject", params: { subjectId: id, name }, });
    };
 
+   // Render of Each Individual Subject
    const renderSubjectItem = ({ item }) => (
       <Pressable
          onPress={() => handleViewSpecificSubject(item.id, item.name)}
@@ -55,11 +63,15 @@ const Landing = () => {
             <Image
                source={require("../assets/images/accountProfile.png")}
                style={styles.profileImage}
+               resizeMode="contain"
             />
             <View>
                <Text style={styles.subjectText}>{item.name}</Text>
                <Text style={styles.dobText}>
                   Born {dayjs(item.dob).format("MMMM D, YYYY")}
+               </Text>
+               <Text style={styles.dobText}>
+                  Notes: <Text>{item.notes}</Text>
                </Text>
             </View>
          </View>
@@ -79,6 +91,14 @@ const Landing = () => {
          </Menu>
       </Pressable>
    );
+
+   if (loading) {
+      return (
+         <View style={styles.centered}>
+            <ActivityIndicator size="large" />
+         </View>
+      );
+   }
 
    if (Platform.OS === "web") {
       return (
@@ -142,6 +162,11 @@ const Landing = () => {
 };
 
 const styles = StyleSheet.create({
+   centered: {
+      flex: 1,
+      justifyContent: "center",
+      backgroundColor: "#F7F7F7",
+   },
    container: {
       flex: 1,
       backgroundColor: "#F7F7F7",
@@ -158,8 +183,8 @@ const styles = StyleSheet.create({
       color: "#152A51",
       fontWeight: "bold",
       fontSize: 25,
-      marginBottom: 15,
-   },
+      marginBottom: 35,
+  },
    noSubjectsTitle: {
       color: "#3265C3",
       fontSize: 18,
@@ -217,7 +242,6 @@ const styles = StyleSheet.create({
    profileImage: {
       width: 35,
       height: 35,
-      resizeMode: "contain",
       marginRight: 15,
       alignSelf: "center",
    },

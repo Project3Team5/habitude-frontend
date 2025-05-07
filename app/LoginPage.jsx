@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { useRouter } from 'expo-router';
-
+import React, { useState, useRef } from "react";
+import { useRouter } from "expo-router";
+import axios from "axios"; // ✅ Import axios
 import {
   View,
   Text,
@@ -8,156 +8,204 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
+  ScrollView,
 } from "react-native";
-import { login as authLogin } from "../app/AuthService";
+import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
+import WebFooter from "../components/webFooter";
 
 const LoginPage = () => {
   const router = useRouter();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const scrollRef = useRef(null);
+
+  const [user, setUser] = useState({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (field, value) => {
+    setUser((prev) => ({ ...prev, [field]: value }));
+  };
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
+
+  // DOESN'T CURRENTLY WORK (NEED TO ADD LOGIN API ENDPOINT TO BACKEND)
+  const handleLogin = async () => {
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/api/users/login`,
+        user
+      );
+
+      if (response.data) {
+        router.push("/landing");
+      } else {
+        alert("Invalid credentials.");
+      }
+    } catch (error) {
+      console.error("Login Error:", error);
+      alert("❌ Failed to log in.");
+    }
+  };
+
   const loginButton = () => {
     let valid = true;
+    setEmailError("");
+    setPasswordError("");
 
-
-    if (!validateEmail(email)) {
+    if (!validateEmail(user.email)) {
       setEmailError("Please enter a valid email.");
       valid = false;
     }
 
-    if (!password) {
+    if (!user.password) {
       setPasswordError("Password cannot be empty.");
       valid = false;
-    } else {
-      setPasswordError("");
     }
 
     if (valid) {
-      authLogin(email, password);
-      router.push("/landing");
-    }};
-
-  const handleSignup = () => {
-    alert("** Pressed button to sign up**");
+      handleLogin();
+    }
   };
 
-
-
-// Placeholder for future OAuth login
-
   const GoogleButton = () => {
-
-    alert("** GoogleButton in Progress  **");
-    // Proceed with login logic
+    alert("🔧 Google login coming soon.");
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.loginContainer} >
-        <Text style={styles.formTitle}>Log in with</Text>
-
-
-        <View style={styles.socialLogin}>
-          <TouchableOpacity style={styles.socialButton} onPress={GoogleButton} >
-            <Image         // Placeholder for future OAuth login
-              source={require("../assets/images/google.png")}
-              style={styles.socialIcon}
-            />
-            <Text>Google</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.socialButton}>
+    <SafeAreaProvider>
+      <SafeAreaView style={styles.container}>
+        <ScrollView
+          ref={scrollRef}
+          contentContainerStyle={styles.scrollContent}
+        >
+          <View style={styles.bodyContainer}>
             <Image
-              source={require("../assets/images/apple.png")}
-              style={styles.socialIcon}
+              source={require("../assets/images/Habitude-Top-Logo.png")}
+              style={styles.logoIcon}
+              resizeMode="contain"
             />
-            <Text>Apple</Text>
-          </TouchableOpacity>
-        </View>
+            <View style={styles.loginContainer}>
+              <Text style={styles.formTitle}>Log in with</Text>
 
-        <View style={styles.separatorContainer}>
-          <View style={styles.line} />
-          <Text style={styles.separatorText}>or</Text>
-          <View style={styles.line} />
-        </View>
+              <View style={styles.socialLogin}>
+                <TouchableOpacity
+                  style={styles.socialButton}
+                  onPress={GoogleButton}
+                >
+                  <Image
+                    source={require("../assets/images/google.png")}
+                    style={styles.socialIcon}
+                    resizeMode="contain"
+                  />
+                  <Text>Google</Text>
+                </TouchableOpacity>
 
-        <View style={styles.inputWrapper}>
-          <TextInput
-            style={styles.inputField}
-            placeholder="Email address"
-            placeholderTextColor="#a385e0"
-            keyboardType="email-address"
-            autoCapitalize="none"
-            value={email}
-            onChangeText={setEmail}
-            required
-            // add Email required and EmailError
-          />
-          {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
-        </View>
+                <TouchableOpacity style={styles.socialButton}>
+                  <Image
+                    source={require("../assets/images/github.png")}
+                    style={styles.socialIcon}
+                    resizeMode="contain"
+                  />
+                  <Text>GitHub</Text>
+                </TouchableOpacity>
+              </View>
 
-        <View style={styles.inputWrapper}>
-          <TextInput
-            style={styles.inputField}
-            placeholder="Password"
-            placeholderTextColor="#a385e0"
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
-            required
-              // add password required and passwordError
-          />
-        </View>
+              <View style={styles.separatorContainer}>
+                <View style={styles.line} />
+                <Text style={styles.separatorText}>or</Text>
+                <View style={styles.line} />
+              </View>
 
-        <TouchableOpacity>
-          <Text style={styles.forgotPassword}>Forgot Password?</Text>
-        </TouchableOpacity>
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={styles.inputField}
+                  placeholder="Email address"
+                  placeholderTextColor="#a6a6a6"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  value={user.email}
+                  onChangeText={(text) => handleChange("email", text)}
+                />
+                {emailError ? (
+                  <Text style={styles.errorText}>{emailError}</Text>
+                ) : null}
+              </View>
 
-        <TouchableOpacity style={styles.loginButton} onPress={loginButton}>
-          <Text style={styles.loginText}>Log in</Text>
-        </TouchableOpacity>
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  style={styles.inputField}
+                  placeholder="Password"
+                  placeholderTextColor="#a6a6a6"
+                  secureTextEntry
+                  value={user.password}
+                  onChangeText={(text) => handleChange("password", text)}
+                />
+                {passwordError ? (
+                  <Text style={styles.errorText}>{passwordError}</Text>
+                ) : null}
+              </View>
 
-        <TouchableOpacity onPress={() => router.push("/Signup")}>
-          <Text style={styles.signupText}>
-            Don’t have an account? <Text style={styles.signupLink}>Signup now</Text>
-          </Text>
-        </TouchableOpacity>
+              <TouchableOpacity>
+                <Text style={styles.forgotPassword}>Forgot Password?</Text>
+              </TouchableOpacity>
 
-      </View>
-    </View>
+              <TouchableOpacity
+                style={styles.loginButton}
+                onPress={loginButton}
+              >
+                <Text style={styles.loginText}>Log in</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={() => router.push("/Signup")}>
+                <Text style={styles.signupText}>
+                  Don’t have an account?{" "}
+                  <Text style={styles.signupLink}>Signup now</Text>
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+          <WebFooter />
+        </ScrollView>
+      </SafeAreaView>
+    </SafeAreaProvider>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    backgroundColor: "#F7F7F7",
+    minHeight: "100%",
+  },
+  scrollContent: {
+    flexGrow: 1,
+  },
+  bodyContainer: {
+    flex: 1,
     alignItems: "center",
-    backgroundColor: "aqua",
+    backgroundColor: "#F7F7F7",
     paddingHorizontal: 10,
+    paddingBottom: 20,
   },
   loginContainer: {
-    maxWidth: 410,
+    maxWidth: 450,
     width: "100%",
     backgroundColor: "#ffffff",
     borderRadius: 8,
     padding: 24,
-    boxShadowColor: "#000",
-    boxShadowOffset: { width: 0, height: 10 },
-    boxShadowOpacity: 0.1,
-    boxShadowRadius: 20,
+    boxShadow: "0px 2px 4px 0px rgba(0, 0, 0, 0.1)",
     elevation: 5,
   },
   formTitle: {
     textAlign: "center",
     fontSize: 22,
+    color: "#152A51",
     fontWeight: "600",
     marginBottom: 30,
   },
@@ -166,6 +214,10 @@ const styles = StyleSheet.create({
     gap: 20,
     justifyContent: "space-between",
   },
+  logoIcon: {
+    width: 120,
+    height: 100,
+  },
   socialButton: {
     flex: 1,
     flexDirection: "row",
@@ -173,7 +225,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 10,
     backgroundColor: "#F9F8FF",
-    borderColor: "#D5CBFF",
+    borderColor: "#a8bee7",
     borderWidth: 1,
     borderRadius: 5,
     paddingVertical: 12,
@@ -191,14 +243,14 @@ const styles = StyleSheet.create({
   line: {
     flex: 1,
     height: 1,
-    backgroundColor: "#bfb3f2",
+    backgroundColor: "#333",
   },
   separatorText: {
     textAlign: "center",
     marginHorizontal: 15,
     fontWeight: "500",
     fontSize: 17,
-    color: "#333",
+    color: "#152A51",
   },
   inputWrapper: {
     height: 54,
@@ -209,7 +261,7 @@ const styles = StyleSheet.create({
     height: "100%",
     width: "100%",
     borderRadius: 5,
-    borderColor: "#bfb3f2",
+    borderColor: "#a8bee7",
     borderWidth: 1,
     paddingLeft: 20,
     paddingRight: 20,
@@ -221,14 +273,14 @@ const styles = StyleSheet.create({
     color: "#a395e0",
   },
   forgotPassword: {
-    color: "#5F41E4",
+    color: "#3265C3",
     fontWeight: "500",
     alignSelf: "flex-start",
     marginBottom: 10,
   },
   loginButton: {
     height: 54,
-    backgroundColor: "#5F41E4",
+    backgroundColor: "#152A51",
     borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
@@ -237,17 +289,23 @@ const styles = StyleSheet.create({
   loginText: {
     color: "#fff",
     fontSize: 18,
-    fontWeight: "500",
+    fontWeight: "bold",
   },
   signupText: {
     marginTop: 28,
     textAlign: "center",
     fontWeight: "500",
+    color: "#152A51",
   },
   signupLink: {
-    color: "#5F41E4",
+    color: "#3265C3",
     fontWeight: "500",
-    textDecorationLine: 'underline',
+    textDecorationLine: "underline",
+  },
+  errorText: {
+    color: "red",
+    marginTop: 5,
+    fontSize: 13,
   },
 });
 

@@ -5,26 +5,50 @@ import dayjs from "dayjs";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import { MenuProvider } from "react-native-popup-menu";
 import { useRouter } from "expo-router";
+import axios from "axios";
 import WebGeneralHeader from "../components/webGeneralHeader";
 import WebFooter from "../components/webFooter";
 
 const CreateSubject = () => {
-  const [name, setName] = useState("");
-  const [dob, setDob] = useState(new Date());
-  const [notes, setNotes] = useState("");
   const [showPicker, setShowPicker] = useState(false);
-
+  const [createError, setCreateError] = useState("");
   const router = useRouter();
   const scrollRef = useRef(null);
 
-  const handleCreateSubject = () => {
-    alert(`Creating New Person:\nName: ${name}\nDate: ${dayjs(dob).format("MMM D, YYYY")}\nNotes: ${notes}`);
+  const [subject, setSubject] = useState({
+    name: "",
+    dob: new Date(),
+    notes: "",
+  });
+
+  const handleChange = (name, value) => {
+    setSubject((prevSubject) => ({
+      ...prevSubject,
+      [name]: value,
+    }));
   };
 
-  const handleDobChange = (event, selectedDate) => {
-    setShowPicker(false);
-    if (selectedDate) {
-      setDob(selectedDate);
+  const handleCreateSubject = async () => {
+    if (!subject.name || !subject.notes) {
+      setCreateError("⚠️ Please fill out all fields.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/api/users/${userId}/subjects`,
+        {
+          name: subject.name,
+          dob: subject.dob,
+          notes: subject.notes,
+        }
+      );
+      if (response.data) {
+        router.push(`/landing`);
+      }
+    } catch (error) {
+      setCreateError(`Error creating new subject`);
+      console.log("Error: ", error);
     }
   };
 
@@ -33,10 +57,10 @@ const CreateSubject = () => {
       <SafeAreaProvider>
         <SafeAreaView style={styles.container}>
           <ScrollView ref={scrollRef} contentContainerStyle={styles.scrollContent}>
-            {/* Header */}
             <WebGeneralHeader />
             <View style={styles.bodyContainer}>
-              <Text style={styles.sectionTitle}>Create New Subject</Text>
+              <Text style={styles.sectionTitle}>Create a New Subject</Text>
+              {createError ? <Text style={{ color: "red" }}>{createError}</Text> : null}
 
               <View style={styles.inputContainer}>
                 <View>
@@ -44,8 +68,9 @@ const CreateSubject = () => {
                   <TextInput
                     style={styles.input}
                     placeholder="Enter Person's Name"
-                    value={name}
-                    onChangeText={setName}
+                    placeholderTextColor="#a6a6a6"
+                    value={subject.name}
+                    onChangeText={(text) => handleChange("name", text)}
                   />
                 </View>
 
@@ -54,29 +79,35 @@ const CreateSubject = () => {
                   {Platform.OS === "web" ? (
                     <input
                       type="date"
-                      value={dayjs(dob).format("YYYY-MM-DD")}
+                      value={dayjs(subject.dob).format("YYYY-MM-DD")}
                       max="9999-12-31"
                       onChange={(e) => {
                         const inputValue = e.target.value;
-                        const isValid = dayjs(inputValue).isValid();
-                        if (isValid) {
-                          setDob(dayjs(inputValue).toDate());
+                        const parsedDate = dayjs(inputValue, "YYYY-MM-DD");
+                        if (parsedDate.isValid()) {
+                          handleChange("dob", parsedDate.toDate());
                         }
                       }}
+                      style={styles.dateInput}
                     />
                   ) : (
-                    <>
+                    <View style={styles.dateInput}>
                       <Button title="Pick Date" onPress={() => setShowPicker(true)} />
-                      <Text>{dayjs(dob).format("MMM D, YYYY")}</Text>
+                      <Text>{dayjs(subject.dob).format("MMM D, YYYY")}</Text>
                       {showPicker && (
                         <DateTimePicker
-                          value={dob}
+                          value={subject.dob}
                           mode="date"
-                          onChange={handleDobChange}
+                          onChange={(event, selectedDate) => {
+                            setShowPicker(false);
+                            if (selectedDate) {
+                              handleChange("dob", selectedDate);
+                            }
+                          }}
                           maximumDate={new Date()}
                         />
                       )}
-                    </>
+                    </View>
                   )}
                 </View>
 
@@ -85,19 +116,19 @@ const CreateSubject = () => {
                   <TextInput
                     style={styles.input}
                     placeholder="Enter any additional notes (optional)"
+                    placeholderTextColor="#a6a6a6"
                     multiline
                     numberOfLines={6}
-                    value={notes}
-                    onChangeText={setNotes}
+                    value={subject.notes}
+                    onChangeText={(text) => handleChange("notes", text)}
                   />
                 </View>
               </View>
 
-              <TouchableOpacity style={styles.button} onPress={handleCreateSubject}>
-                <Text style={styles.buttonText}>Create New Subject</Text>
+              <TouchableOpacity style={styles.createButton} onPress={handleCreateSubject}>
+                <Text style={styles.createButtonText}>Create New Subject</Text>
               </TouchableOpacity>
             </View>
-            {/* Footer */}
             <WebFooter />
           </ScrollView>
         </SafeAreaView>
@@ -125,19 +156,19 @@ const styles = StyleSheet.create({
     fontSize: 25,
     marginBottom: 15,
   },
-  button: {
-    backgroundColor: "#227755",
-    padding: 10,
-    borderRadius: 10,
-    marginTop: 20,
-  },
-  buttonText: {
-    fontSize: 15,
-    color: "#fff",
-  },
   label: {
+    color: "#152A51",
     fontWeight: "bold",
+    fontSize: 18,
     marginBottom: 5,
+  },
+  dateInput: {
+    backgroundColor: "#F7F7F7",
+    marginBottom: 20,
+    borderWidth: 1,
+    borderRadius: 5,
+    fontSize: 14,
+    padding: 10,
   },
   inputContainer: {
     width: "80%",
@@ -148,6 +179,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     fontSize: 14,
+    marginBottom: 20,
+  },
+  createButton: {
+    backgroundColor: "#3265C3",
+    width: "25%",
+    padding: 20,
+    borderRadius: 50,
+    marginTop: 20,
+  },
+  createButtonText: {
+    fontWeight: "bold",
+    fontSize: 15,
+    color: "#fff",
+    textAlign: "center",
   },
 });
 

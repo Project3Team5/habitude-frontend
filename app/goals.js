@@ -1,9 +1,10 @@
 import { React, useState, useRef } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Platform, ScrollView, Button } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Platform, ScrollView, ActivityIndicator } from 'react-native';
 import { useRouter, usePathname, useLocalSearchParams } from "expo-router";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import { MenuProvider, Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu";
 import dayjs from "dayjs";
+import axios from "axios";
 import WebGeneralHeader from "../components/webGeneralHeader";
 import WebFooter from "../components/webFooter";
 import Pagination from "../components/pagination";
@@ -12,81 +13,24 @@ const Goals = () => {
     const router = useRouter();
     const pathname = usePathname();
     const { subjectId, name } = useLocalSearchParams();
-
-    const [goals, setGoals] = useState([
-        {
-            id: 1,
-            description: "Improve eye contact during conversations",
-            target_date: "2025-05-30",
-            status: "In Progress",
-            created_at: "2025-04-01T09:00:00Z",
-        },
-        {
-            id: 2,
-            description: "Reduce verbal outbursts to less than twice per week",
-            target_date: "2025-06-15",
-            status: "Not Started",
-            created_at: "2025-04-15T10:30:00Z",
-        },
-        {
-            id: 3,
-            description: "Initiate peer interactions during playtime",
-            target_date: "2025-05-20",
-            status: "In Progress",
-            created_at: "2025-04-10T11:45:00Z",
-        },
-        {
-            id: 4,
-            description: "Follow 2-step instructions without prompting",
-            target_date: "2025-05-10",
-            status: "Achieved",
-            created_at: "2025-03-25T08:15:00Z",
-        },
-        {
-            id: 5,
-            description: "Increase on-task behavior to 80% of session time",
-            target_date: "2025-07-01",
-            status: "In Progress",
-            created_at: "2025-04-20T14:00:00Z",
-        },
-        {
-            id: 6,
-            description: "Use coping strategies during transitions",
-            target_date: "2025-06-01",
-            status: "Not Started",
-            created_at: "2025-04-22T13:20:00Z",
-        },
-        {
-            id: 7,
-            description: "Verbally label emotions in self and others",
-            target_date: "2025-06-10",
-            status: "In Progress",
-            created_at: "2025-04-05T10:05:00Z",
-        },
-        {
-            id: 8,
-            description: "Stay in group settings for 15 minutes without leaving",
-            target_date: "2025-06-25",
-            status: "Not Started",
-            created_at: "2025-04-18T09:50:00Z",
-        },
-        {
-            id: 9,
-            description: "Accept denied requests without tantrums",
-            target_date: "2025-05-25",
-            status: "Achieved",
-            created_at: "2025-03-30T15:30:00Z",
-        },
-        {
-            id: 10,
-            description: "Respond to name being called within 3 seconds",
-            target_date: "2025-05-05",
-            status: "In Progress",
-            created_at: "2025-04-03T12:45:00Z",
-        },
-    ]);
-
+    const [goals, setGoals] = useState([]);
     const scrollRef = useRef(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const handleViewGoalsData = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8080/api/subjects/${subjectId}/subjects`);
+                setGoals(response.data);
+            } catch (error) {
+                console.log("Error getting goals of chosen subject from user: ", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        handleViewGoalsData();
+    }, []);
 
     const [page, setPage] = useState(0);
     const PAGE_SIZE = 5;
@@ -114,8 +58,8 @@ const Goals = () => {
             <View style={styles.goalData}>
                 <View>
                     <Text style={styles.goalTitle}>{item.description}</Text>
-                    <Text style={styles.cardLine}><Text style={styles.label}>Created:</Text> {dayjs(item.created_at).format("MMMM D, YYYY")}</Text>
-                    <Text style={styles.cardLine}><Text style={styles.label}>Target Date:</Text> {dayjs(item.target_date).format("MMMM D, YYYY")}</Text>
+                    <Text style={styles.cardLine}><Text style={styles.label}>Created:</Text> {dayjs(item.createdAt).format("MMMM D, YYYY")}</Text>
+                    <Text style={styles.cardLine}><Text style={styles.label}>Target Date:</Text> {dayjs(item.targetDate).format("MMMM D, YYYY")}</Text>
                     <Text style={styles.cardLine}><Text style={styles.label}>Status:</Text> {item.status}</Text>
                 </View>
             </View>
@@ -136,6 +80,14 @@ const Goals = () => {
             </Menu>
         </View>
     );
+
+    if (loading) {
+        return (
+            <View style={styles.centered}>
+                <ActivityIndicator size="large" />
+            </View>
+        );
+    }
 
     if (Platform.OS === "web") {
         return (
@@ -211,6 +163,11 @@ const Goals = () => {
 }
 
 const styles = StyleSheet.create({
+    centered: {
+        flex: 1,
+        justifyContent: "center",
+        backgroundColor: "#F7F7F7",
+    },
     container: {
         flex: 1,
         backgroundColor: "#F7F7F7",

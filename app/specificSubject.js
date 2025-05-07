@@ -1,9 +1,10 @@
 import { React, useState, useRef } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View, Platform, ScrollView, Pressable } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Platform, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { useRouter, usePathname, useLocalSearchParams } from "expo-router";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import { MenuProvider, Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu";
 import dayjs from "dayjs";
+import axios from "axios";
 import WebGeneralHeader from "../components/webGeneralHeader";
 import WebFooter from "../components/webFooter";
 import Pagination from "../components/pagination";
@@ -12,101 +13,28 @@ const SpecificSubject = () => {
   const router = useRouter();
   const pathname = usePathname();
   const { subjectId, name } = useLocalSearchParams();
+  const [loading, setLoading] = useState(true);
 
-  const [observations, setObservations] = useState([
-    {
-      id: 1,
-      behavior: "Hand flapping when excited",
-      context: "During free play time",
-      timestamp: "2025-04-30T10:15:00Z",
-      duration: 300,
-      frequency: 3,
-      intensity: "Medium",
-    },
-    {
-      id: 2,
-      behavior: "Verbal outburst",
-      context: "Asked to complete a difficult task",
-      timestamp: "2025-04-30T11:20:00Z",
-      duration: 120,
-      frequency: 1,
-      intensity: "High",
-    },
-    {
-      id: 3,
-      behavior: "Rocking back and forth",
-      context: "While waiting in line",
-      timestamp: "2025-04-30T09:45:00Z",
-      duration: 420,
-      frequency: 2,
-      intensity: "Low",
-    },
-    {
-      id: 4,
-      behavior: "Crying",
-      context: "Transitioning from recess to classroom",
-      timestamp: "2025-04-30T12:05:00Z",
-      duration: 240,
-      frequency: 1,
-      intensity: "Medium",
-    },
-    {
-      id: 5,
-      behavior: "Throwing objects",
-      context: "When denied access to a toy",
-      timestamp: "2025-04-30T13:30:00Z",
-      duration: 180,
-      frequency: 2,
-      intensity: "High",
-    },
-    {
-      id: 6,
-      behavior: "Humming loudly",
-      context: "During group instruction",
-      timestamp: "2025-04-30T14:10:00Z",
-      duration: 360,
-      frequency: 4,
-      intensity: "Low",
-    },
-    {
-      id: 7,
-      behavior: "Attempted to leave the room",
-      context: "After being told to clean up",
-      timestamp: "2025-04-30T15:00:00Z",
-      duration: 60,
-      frequency: 1,
-      intensity: "High",
-    },
-    {
-      id: 8,
-      behavior: "Clapping hands repeatedly",
-      context: "In response to a loud noise",
-      timestamp: "2025-04-30T08:55:00Z",
-      duration: 120,
-      frequency: 3,
-      intensity: "Medium",
-    },
-    {
-      id: 9,
-      behavior: "Talking to self",
-      context: "During independent work",
-      timestamp: "2025-04-30T10:45:00Z",
-      duration: 600,
-      frequency: 2,
-      intensity: "Low",
-    },
-    {
-      id: 10,
-      behavior: "Refused to follow instructions",
-      context: "During clean-up routine",
-      timestamp: "2025-04-30T16:15:00Z",
-      duration: 300,
-      frequency: 1,
-      intensity: "Medium",
-    },
-  ]);
+  const [observations, setObservations] = useState([]);
 
   const scrollRef = useRef(null);
+
+  // FIX: DOESN'T LOOK LIKE IT IS POSSIBLE TO VIEW OR CREATE OBSERVATIONS OF A CHOSEN SUBJECT AT THE MOMENT
+
+  // useEffect(() => {
+  //   const handleViewObservationsData = async () => {
+  //     try {
+  //       const response = await axios.get(`http://localhost:8080/api/trend/by-subject/${subjectId}`);
+  //       setObservations(response.data);
+  //     } catch (error) {
+  //       console.log("Error getting observations of chosen subject from user: ", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   handleViewObservationsData();
+  // }, []);
 
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 5;
@@ -188,6 +116,14 @@ const SpecificSubject = () => {
       </Pressable>
     );
   };
+
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   if (Platform.OS === "web") {
     return (
@@ -274,6 +210,11 @@ const SpecificSubject = () => {
 }
 
 const styles = StyleSheet.create({
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "#F7F7F7",
+  },
   container: {
     flex: 1,
     backgroundColor: "#F7F7F7",
@@ -374,9 +315,6 @@ const styles = StyleSheet.create({
     gap: 12,
     alignItems: "flex-start",
     transitionDuration: "200ms",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 2,
     boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
   },
 

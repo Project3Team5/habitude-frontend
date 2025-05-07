@@ -6,30 +6,49 @@ import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import { MenuProvider } from "react-native-popup-menu";
 import { useRouter } from "expo-router";
 import RNPickerSelect from 'react-native-picker-select';
+import axios from "axios";
 import WebGeneralHeader from "../components/webGeneralHeader";
 import WebFooter from "../components/webFooter";
 
 const LogObservation = () => {
-  const [selectedSubject, setSelectedSubject] = useState(null);
-  const [behavior, setBehavior] = useState("");
-  const [context, setContext] = useState("");
-  const [date, setDate] = useState(new Date());
-  const [duration, setDuration] = useState(null);
-  const [frequency, setFrequency] = useState(null);
-  const [selectedIntensity, setSelectedIntensity] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
-
+  const [createError, setCreateError] = useState("");
   const router = useRouter();
   const scrollRef = useRef(null);
 
-  const handleCreateObservation = () => {
-    alert(`Logging New Observation`);
+  const [observation, setObservation] = useState({
+    subject: null,
+    behavior: "",
+    context: "",
+    date: new Date(),
+    duration: "",
+    frequency: "",
+    intensity: null,
+  });
+
+  const handleChange = (name, value) => {
+    setObservation((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleDateChange = (event, selectedDate) => {
-    setShowPicker(false);
-    if (selectedDate) {
-      setDate(selectedDate);
+  const handleCreateObservation = async () => {
+    const { subject, behavior, context, date, duration, frequency, intensity } = observation;
+
+    if (!subject || !behavior || !context || !duration || !frequency || !intensity) {
+      setCreateError("⚠️ Please fill out all required fields.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/api/observations/subjects/${observation.subject.id}`,
+        observation
+      );
+      if (response.data) {
+        router.push("/landing");
+      }
+    } catch (error) {
+      setCreateError("Error creating new observation for subject.");
+      console.error("API Error:", error);
     }
   };
 
@@ -38,25 +57,28 @@ const LogObservation = () => {
       <SafeAreaProvider>
         <SafeAreaView style={styles.container}>
           <ScrollView ref={scrollRef} contentContainerStyle={styles.scrollContent}>
-            {/* Header */}
             <WebGeneralHeader />
             <View style={styles.bodyContainer}>
               <Text style={styles.sectionTitle}>Log a New Observation</Text>
+              {createError ? <Text style={{ color: "red" }}>{createError}</Text> : null}
 
               <View style={styles.inputContainer}>
 
-                {/* Going to need to iterate over every subject created from user */}
                 <View>
                   <Text style={styles.label}>Subject</Text>
                   <RNPickerSelect
-                    onValueChange={(value) => setSelectedSubject(value)}
+                    onValueChange={(value) => handleChange("subject", value)}
                     items={[
                       { label: "Charles", value: "Charles" },
                       { label: "Jimmy", value: "Jimmy" },
                       { label: "Jeff", value: "Jeff" },
                     ]}
                     placeholder={{ label: 'Select Subject...', value: null }}
-                    style={styles.input}
+                    style={{
+                      inputIOS: styles.selectInput,
+                      inputAndroid: styles.selectInput,
+                      inputWeb: styles.selectInput,
+                    }}
                   />
                 </View>
 
@@ -65,10 +87,11 @@ const LogObservation = () => {
                   <TextInput
                     style={styles.input}
                     placeholder="Description of Behavior Observed"
+                    placeholderTextColor="#a6a6a6"
                     multiline
                     numberOfLines={6}
-                    value={behavior}
-                    onChangeText={setBehavior}
+                    value={observation.behavior}
+                    onChangeText={(text) => handleChange("behavior", text)}
                   />
                 </View>
 
@@ -77,10 +100,11 @@ const LogObservation = () => {
                   <TextInput
                     style={styles.input}
                     placeholder="Additional Context (Time, Place, Situation)"
+                    placeholderTextColor="#a6a6a6"
                     multiline
                     numberOfLines={6}
-                    value={context}
-                    onChangeText={setContext}
+                    value={observation.context}
+                    onChangeText={(text) => handleChange("context", text)}
                   />
                 </View>
 
@@ -89,75 +113,85 @@ const LogObservation = () => {
                   {Platform.OS === "web" ? (
                     <input
                       type="date"
-                      value={dayjs(date).format("YYYY-MM-DD")}
+                      value={dayjs(observation.date).format("YYYY-MM-DD")}
                       max="9999-12-31"
                       onChange={(e) => {
                         const inputValue = e.target.value;
-                        const isValid = dayjs(inputValue).isValid();
-                        if (isValid) {
-                          setDate(dayjs(inputValue).toDate());
+                        if (dayjs(inputValue).isValid()) {
+                          handleChange("date", dayjs(inputValue).toDate());
                         }
                       }}
+                      style={styles.dateInput}
                     />
                   ) : (
-                    <>
+                    <View style={styles.dateInput}>
                       <Button title="Pick Date" onPress={() => setShowPicker(true)} />
-                      <Text>{dayjs(date).format("MMM D, YYYY")}</Text>
+                      <Text>{dayjs(observation.date).format("MMM D, YYYY")}</Text>
                       {showPicker && (
                         <DateTimePicker
-                          value={date}
+                          value={observation.date}
                           mode="date"
-                          onChange={handleDateChange}
+                          onChange={(event, selectedDate) => {
+                            setShowPicker(false);
+                            if (selectedDate) {
+                              handleChange("date", selectedDate);
+                            }
+                          }}
                           maximumDate={new Date()}
                         />
                       )}
-                    </>
+                    </View>
                   )}
                 </View>
 
                 <View>
-                  <Text style={styles.label}>Duration in Seconds (If Applicable)</Text>
+                  <Text style={styles.label}>Duration in Seconds</Text>
                   <TextInput
                     style={styles.input}
-                    value={duration}
-                    onChangeText={setDuration}
+                    value={observation.duration}
+                    onChangeText={(text) => handleChange("duration", text)}
                     keyboardType="numeric"
                     placeholder="0"
+                    placeholderTextColor="#a6a6a6"
                   />
                 </View>
 
                 <View>
-                  <Text style={styles.label}>Frequency Count if Logged in Batches (Optional)</Text>
+                  <Text style={styles.label}>Frequency Count</Text>
                   <TextInput
                     style={styles.input}
-                    value={frequency}
-                    onChangeText={setFrequency}
+                    value={observation.frequency}
+                    onChangeText={(text) => handleChange("frequency", text)}
                     keyboardType="numeric"
                     placeholder="0"
+                    placeholderTextColor="#a6a6a6"
                   />
                 </View>
 
                 <View>
                   <Text style={styles.label}>Intensity Level</Text>
                   <RNPickerSelect
-                    onValueChange={(value) => setSelectedIntensity(value)}
+                    onValueChange={(value) => handleChange("intensity", value)}
                     items={[
                       { label: "Low", value: "Low" },
                       { label: "Medium", value: "Medium" },
                       { label: "High", value: "High" },
                     ]}
                     placeholder={{ label: 'Select Intensity Level...', value: null }}
-                    style={styles.input}
+                    style={{
+                      inputIOS: styles.selectInput,
+                      inputAndroid: styles.selectInput,
+                      inputWeb: styles.selectInput,
+                    }}
                   />
                 </View>
 
               </View>
 
-              <TouchableOpacity style={styles.button} onPress={handleCreateObservation}>
-                <Text style={styles.buttonText}>Log New Observation</Text>
+              <TouchableOpacity style={styles.createButton} onPress={handleCreateObservation}>
+                <Text style={styles.createButtonText}>Log New Observation</Text>
               </TouchableOpacity>
             </View>
-            {/* Footer */}
             <WebFooter />
           </ScrollView>
         </SafeAreaView>
@@ -185,19 +219,27 @@ const styles = StyleSheet.create({
     fontSize: 25,
     marginBottom: 15,
   },
-  button: {
-    backgroundColor: "#227755",
-    padding: 10,
-    borderRadius: 10,
-    marginTop: 20,
-  },
-  buttonText: {
-    fontSize: 15,
-    color: "#fff",
-  },
   label: {
+    color: "#152A51",
     fontWeight: "bold",
+    fontSize: 18,
     marginBottom: 5,
+  },
+  selectInput: {
+    backgroundColor: "#F7F7F7",
+    marginBottom: 20,
+    borderWidth: 1,
+    borderRadius: 5,
+    fontSize: 14,
+    padding: 10,
+  },
+  dateInput: {
+    backgroundColor: "#F7F7F7",
+    marginBottom: 20,
+    borderWidth: 1,
+    borderRadius: 5,
+    fontSize: 14,
+    padding: 10,
   },
   inputContainer: {
     width: "80%",
@@ -208,6 +250,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     fontSize: 14,
+    marginBottom: 20,
+  },
+  createButton: {
+    backgroundColor: "#3265C3",
+    width: "25%",
+    padding: 20,
+    borderRadius: 50,
+    marginTop: 20,
+  },
+  createButtonText: {
+    fontWeight: "bold",
+    fontSize: 15,
+    color: "#fff",
+    textAlign: "center",
   },
 });
 

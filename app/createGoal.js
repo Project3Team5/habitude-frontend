@@ -8,25 +8,47 @@ import { MenuProvider } from "react-native-popup-menu";
 import { useRouter } from "expo-router";
 import WebGeneralHeader from "../components/webGeneralHeader";
 import WebFooter from "../components/webFooter";
+import axios from "axios";
 
 const CreateGoal = () => {
-  const [selectedSubject, setSelectedSubject] = useState(null);
-  const [description, setDescription] = useState("");
-  const [targetDate, setTargetDate] = useState(new Date());
-  const [selectedStatus, setSelectedStatus] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
-
+  const [createError, setCreateError] = useState("");
   const router = useRouter();
   const scrollRef = useRef(null);
 
-  const handleCreateGoal = () => {
-    alert(`Creating New Goal`);
+  const [goal, setGoal] = useState({
+    subject: null,
+    description: "",
+    targetDate: new Date(),
+    status: null,
+  });
+
+  const handleChange = (name, value) => {
+    setGoal((prevGoal) => ({
+      ...prevGoal,
+      [name]: value,
+    }));
   };
 
-  const handleTargetDateChange = (event, selectedTargetDate) => {
-    setShowPicker(false);
-    if (selectedTargetDate) {
-      setTargetDate(selectedTargetDate);
+  const handleCreateGoal = async () => {
+    const { subject, description, targetDate, status } = goal;
+
+    if (!goal.subject || !goal.description || !goal.status) {
+      setCreateError("⚠️ Please fill out all fields.");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `http://localhost:8080/api/subjects/${goal.subject.id}/goals`,
+        goal
+      );
+      if (response.data) {
+        router.push(`/landing`);
+      }
+    } catch (error) {
+      setCreateError(`Error creating new goal for subject`);
+      console.log("Error: ", error);
     }
   };
 
@@ -38,89 +60,105 @@ const CreateGoal = () => {
             {/* Header */}
             <WebGeneralHeader />
             <View style={styles.bodyContainer}>
-              <Text style={styles.sectionTitle}>Create New Goal</Text>
+              <Text style={styles.sectionTitle}>Set a New Goal</Text>
+
+              {createError ? <Text style={{ color: "red" }}>{createError}</Text> : null}
 
               <View style={styles.inputContainer}>
-                {/* Going to need to iterate over every subject created from user */}
+                {/* Subject Select */}
                 <View>
                   <Text style={styles.label}>Subject</Text>
                   <RNPickerSelect
-                    onValueChange={(value) => setSelectedSubject(value)}
+                    onValueChange={(value) => handleChange("subject", value)}
                     items={[
                       { label: "Charles", value: "Charles" },
                       { label: "Jimmy", value: "Jimmy" },
                       { label: "Jeff", value: "Jeff" },
                     ]}
                     placeholder={{ label: 'Select Subject...', value: null }}
-                    style={styles.input}
+                    style={{
+                      inputIOS: styles.selectInput,
+                      inputAndroid: styles.selectInput,
+                      inputWeb: styles.selectInput,
+                    }}
                   />
                 </View>
 
+                {/* Description */}
                 <View>
                   <Text style={styles.label}>Description:</Text>
                   <TextInput
                     style={styles.input}
-                    placeholder="Enter any additional details (Optional)"
+                    placeholder="Enter goal description"
+                    placeholderTextColor="#a6a6a6"
                     multiline
                     numberOfLines={6}
-                    value={description}
-                    onChangeText={setDescription}
+                    value={goal.description}
+                    onChangeText={(text) => handleChange("description", text)}
                   />
                 </View>
 
+                {/* Target Date */}
                 <View>
                   <Text style={styles.label}>Target Date (Deadline)</Text>
                   {Platform.OS === "web" ? (
                     <input
                       type="date"
-                      value={dayjs(targetDate).format("YYYY-MM-DD")}
-                      max="9999-12-31"
+                      value={dayjs(goal.targetDate).format("YYYY-MM-DD")}
                       onChange={(e) => {
                         const inputValue = e.target.value;
-                        const isValid = dayjs(inputValue).isValid();
-                        if (isValid) {
-                          setTargetDate(dayjs(inputValue).toDate());
+                        const parsed = dayjs(inputValue, "YYYY-MM-DD");
+                        if (parsed.isValid()) {
+                          handleChange("targetDate", parsed.toDate());
                         }
                       }}
+                      style={styles.dateInput}
                     />
                   ) : (
-                    <>
+                    <View style={styles.dateInput}>
                       <Button title="Pick Date" onPress={() => setShowPicker(true)} />
-                      <Text>{dayjs(targetDate).format("MMM D, YYYY")}</Text>
+                      <Text>{dayjs(goal.targetDate).format("MMM D, YYYY")}</Text>
                       {showPicker && (
                         <DateTimePicker
-                          value={targetDate}
+                          value={goal.targetDate}
                           mode="date"
-                          onChange={handleTargetDateChange}
-                          maximumDate={new Date()}
+                          onChange={(event, selectedDate) => {
+                            setShowPicker(false);
+                            if (selectedDate) {
+                              handleChange("targetDate", selectedDate);
+                            }
+                          }}
+                          maximumDate={new Date("9999-12-31")}
                         />
                       )}
-                    </>
+                    </View>
                   )}
                 </View>
 
+                {/* Status */}
                 <View>
                   <Text style={styles.label}>Status</Text>
                   <RNPickerSelect
-                    onValueChange={(value) => setSelectedStatus(value)}
+                    onValueChange={(value) => handleChange("status", value)}
                     items={[
                       { label: "Not Started", value: "Not Started" },
                       { label: "In Progress", value: "In Progress" },
                       { label: "Achieved", value: "Achieved" },
                     ]}
                     placeholder={{ label: 'Select Status...', value: null }}
-                    style={styles.input}
+                    style={{
+                      inputIOS: styles.selectInput,
+                      inputAndroid: styles.selectInput,
+                      inputWeb: styles.selectInput,
+                    }}
                   />
                 </View>
-
-
               </View>
 
-              <TouchableOpacity style={styles.button} onPress={handleCreateGoal}>
-                <Text style={styles.buttonText}>Create New Goal</Text>
+              <TouchableOpacity style={styles.createButton} onPress={handleCreateGoal}>
+                <Text style={styles.createButtonText}>Create New Goal</Text>
               </TouchableOpacity>
             </View>
-            {/* Footer */}
             <WebFooter />
           </ScrollView>
         </SafeAreaView>
@@ -148,19 +186,27 @@ const styles = StyleSheet.create({
     fontSize: 25,
     marginBottom: 15,
   },
-  button: {
-    backgroundColor: "#227755",
-    padding: 10,
-    borderRadius: 10,
-    marginTop: 20,
-  },
-  buttonText: {
-    fontSize: 15,
-    color: "#fff",
-  },
   label: {
+    color: "#152A51",
     fontWeight: "bold",
+    fontSize: 18,
     marginBottom: 5,
+  },
+  selectInput: {
+    backgroundColor: "#F7F7F7",
+    marginBottom: 20,
+    borderWidth: 1,
+    borderRadius: 5,
+    fontSize: 14,
+    padding: 10,
+  },
+  dateInput: {
+    backgroundColor: "#F7F7F7",
+    marginBottom: 20,
+    borderWidth: 1,
+    borderRadius: 5,
+    fontSize: 14,
+    padding: 10,
   },
   inputContainer: {
     width: "80%",
@@ -171,6 +217,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     fontSize: 14,
+    marginBottom: 20,
+  },
+  createButton: {
+    backgroundColor: "#3265C3",
+    width: "25%",
+    padding: 20,
+    borderRadius: 50,
+    marginTop: 20,
+  },
+  createButtonText: {
+    fontWeight: "bold",
+    fontSize: 15,
+    color: "#fff",
+    textAlign: "center",
   },
 });
 

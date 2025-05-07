@@ -6,28 +6,48 @@ import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import { MenuProvider } from "react-native-popup-menu";
 import { useRouter } from "expo-router";
 import RNPickerSelect from 'react-native-picker-select';
+import axios from "axios";
 import WebGeneralHeader from "../components/webGeneralHeader";
 import WebFooter from "../components/webFooter";
 
 const CreateTreatmentPlan = () => {
-    const [selectedSubject, setSelectedSubject] = useState(null);
-    const [selectedGoal, setSelectedGoal] = useState(null);
-    const [plan, setPlan] = useState("");
-    const [nextReviewDate, setNextReviewDate] = useState(new Date());
-    const [notes, setNotes] = useState("");
     const [showPicker, setShowPicker] = useState(false);
-
+    const [createError, setCreateError] = useState("");
     const router = useRouter();
     const scrollRef = useRef(null);
 
-    const handleCreateTreatmentPlan = () => {
-        alert(`Creating New Treatment Plan`);
+    const [treatmentPlan, setTreatmentPlan] = useState({
+        subject: null,
+        goal: null,
+        observation: null,
+        plan: "",
+        nextReviewDate: new Date(),
+        notes: "",
+    });
+
+    const handleChange = (name, value) => {
+        setTreatmentPlan(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleNextReviewDateChange = (event, selectedReviewDate) => {
-        setShowPicker(false);
-        if (selectedReviewDate) {
-            setNextReviewDate(selectedReviewDate);
+    const handleCreateTreatmentPlan = async () => {
+        const { subject, goal, plan, notes } = treatmentPlan;
+
+        if (!subject || !goal || !plan || !notes) {
+            setCreateError("⚠️ Please fill out all required fields.");
+            return;
+        }
+
+        try {
+            const response = await axios.post(
+                `http://localhost:8080/api/subjects/${treatmantPlan.subject.id}/treatment-plans`,
+                treatmentPlan
+            );
+            if (response.data) {
+                router.push("/landing");
+            }
+        } catch (error) {
+            setCreateError("Error creating new treatment plan for subject.");
+            console.error("API Error:", error);
         }
     };
 
@@ -36,120 +56,141 @@ const CreateTreatmentPlan = () => {
             <SafeAreaProvider>
                 <SafeAreaView style={styles.container}>
                     <ScrollView ref={scrollRef} contentContainerStyle={styles.scrollContent}>
-                        {/* Header */}
                         <WebGeneralHeader />
                         <View style={styles.bodyContainer}>
-                            <Text style={styles.sectionTitle}>Create New Treatment Plan</Text>
+                            <Text style={styles.sectionTitle}>Create a New Treatment Plan</Text>
+                            {createError ? <Text style={{ color: "red" }}>{createError}</Text> : null}
 
                             <View style={styles.inputContainer}>
-                                {/* Going to need to iterate over every subject created from user */}
+
+                                {/* Subject Picker */}
                                 <View>
                                     <Text style={styles.label}>Subject</Text>
                                     <RNPickerSelect
-                                        onValueChange={(value) => setSelectedSubject(value)}
+                                        onValueChange={(value) => handleChange("subject", value)}
                                         items={[
-                                            { label: "Charles", value: "Charles" },
-                                            { label: "Jimmy", value: "Jimmy" },
-                                            { label: "Jeff", value: "Jeff" },
+                                            { label: "Charles", value: "1" },
+                                            { label: "Jimmy", value: "2" },
+                                            { label: "Jeff", value: "3" },
                                         ]}
                                         placeholder={{ label: 'Select Subject...', value: null }}
-                                        style={styles.input}
+                                        style={{
+                                            inputIOS: styles.selectInput,
+                                            inputAndroid: styles.selectInput,
+                                            inputWeb: styles.selectInput,
+                                        }}
                                     />
                                 </View>
 
-                                {/* Going to need to iterate over every goal assigned to subject */}
+                                {/* Goal Picker */}
                                 <View>
-                                    <Text style={styles.label}>Goal:</Text>
+                                    <Text style={styles.label}>Goal</Text>
                                     <RNPickerSelect
-                                        onValueChange={(value) => setSelectedGoal(value)}
+                                        onValueChange={(value) => handleChange("goal", value)}
                                         items={[
                                             { label: "Temp 1", value: "Temp 1" },
                                             { label: "Testing", value: "Testing" },
                                             { label: "Tester", value: "Tester" },
                                         ]}
                                         placeholder={{ label: 'Select Goal...', value: null }}
-                                        style={styles.input}
+                                        style={{
+                                            inputIOS: styles.selectInput,
+                                            inputAndroid: styles.selectInput,
+                                            inputWeb: styles.selectInput,
+                                        }}
                                     />
                                 </View>
 
-                                {/* Going to need to iterate over every observation assigned to subject */}
+                                {/* Observation Picker */}
                                 <View>
-                                    <Text style={styles.label}>Observation:</Text>
+                                    <Text style={styles.label}>Observation</Text>
                                     <RNPickerSelect
-                                        onValueChange={(value) => setSelectedObservation(value)}
+                                        onValueChange={(value) => handleChange("observation", value)}
                                         items={[
                                             { label: "Observation #1", value: "Observation #1" },
                                             { label: "Observation #2", value: "Observation #2" },
                                             { label: "Observation #3", value: "Observation #3" },
                                         ]}
                                         placeholder={{ label: 'Select Observation...', value: null }}
-                                        style={styles.input}
+                                        style={{
+                                            inputIOS: styles.selectInput,
+                                            inputAndroid: styles.selectInput,
+                                            inputWeb: styles.selectInput,
+                                        }}
                                     />
                                 </View>
 
+                                {/* Plan */}
                                 <View>
                                     <Text style={styles.label}>Plan</Text>
                                     <TextInput
                                         style={styles.input}
                                         placeholder="Intervention Steps"
+                                        placeholderTextColor="#a6a6a6"
                                         multiline
                                         numberOfLines={6}
-                                        value={plan}
-                                        onChangeText={setPlan}
+                                        value={treatmentPlan.plan}
+                                        onChangeText={(text) => handleChange("plan", text)}
                                     />
                                 </View>
 
+                                {/* Next Review Date */}
                                 <View>
                                     <Text style={styles.label}>Next Review Date</Text>
                                     {Platform.OS === "web" ? (
                                         <input
                                             type="date"
-                                            value={dayjs(nextReviewDate).format("YYYY-MM-DD")}
+                                            value={dayjs(treatmentPlan.nextReviewDate).format("YYYY-MM-DD")}
                                             max="9999-12-31"
                                             onChange={(e) => {
                                                 const inputValue = e.target.value;
                                                 const isValid = dayjs(inputValue).isValid();
                                                 if (isValid) {
-                                                    setNextReviewDate(dayjs(inputValue).toDate());
+                                                    handleChange("nextReviewDate", dayjs(inputValue).toDate());
                                                 }
                                             }}
+                                            style={styles.dateInput}
                                         />
                                     ) : (
-                                        <>
+                                        <View style={styles.dateInput}>
                                             <Button title="Pick Date" onPress={() => setShowPicker(true)} />
-                                            <Text>{dayjs(nextReviewDate).format("MMM D, YYYY")}</Text>
+                                            <Text>{dayjs(treatmentPlan.nextReviewDate).format("MMM D, YYYY")}</Text>
                                             {showPicker && (
                                                 <DateTimePicker
-                                                    value={nextReviewDate}
+                                                    value={treatmentPlan.nextReviewDate}
                                                     mode="date"
-                                                    onChange={handleNextReviewDateChange}
+                                                    onChange={(event, selectedDate) => {
+                                                        setShowPicker(false);
+                                                        if (selectedDate) {
+                                                            handleChange("nextReviewDate", selectedDate);
+                                                        }
+                                                    }}
                                                     maximumDate={new Date()}
                                                 />
                                             )}
-                                        </>
+                                        </View>
                                     )}
                                 </View>
 
+                                {/* Notes */}
                                 <View>
-                                    <Text style={styles.label}>Notes:</Text>
+                                    <Text style={styles.label}>Notes</Text>
                                     <TextInput
                                         style={styles.input}
-                                        placeholder="Enter any additional notes (optional)"
+                                        placeholder="Additional notes (optional)"
+                                        placeholderTextColor="#a6a6a6"
                                         multiline
                                         numberOfLines={6}
-                                        value={notes}
-                                        onChangeText={setNotes}
+                                        value={treatmentPlan.notes}
+                                        onChangeText={(text) => handleChange("notes", text)}
                                     />
                                 </View>
-
-
                             </View>
 
-                            <TouchableOpacity style={styles.button} onPress={handleCreateTreatmentPlan}>
-                                <Text style={styles.buttonText}>Create New Treatment Plan</Text>
+                            <TouchableOpacity style={styles.createButton} onPress={handleCreateTreatmentPlan}>
+                                <Text style={styles.createButtonText}>Create New Treatment Plan</Text>
                             </TouchableOpacity>
                         </View>
-                        {/* Footer */}
                         <WebFooter />
                     </ScrollView>
                 </SafeAreaView>
@@ -177,19 +218,27 @@ const styles = StyleSheet.create({
         fontSize: 25,
         marginBottom: 15,
     },
-    button: {
-        backgroundColor: "#227755",
-        padding: 10,
-        borderRadius: 10,
-        marginTop: 20,
-    },
-    buttonText: {
-        fontSize: 15,
-        color: "#fff",
-    },
     label: {
+        color: "#152A51",
         fontWeight: "bold",
+        fontSize: 18,
         marginBottom: 5,
+    },
+    selectInput: {
+        backgroundColor: "#F7F7F7",
+        marginBottom: 20,
+        borderWidth: 1,
+        borderRadius: 5,
+        fontSize: 14,
+        padding: 10,
+    },
+    dateInput: {
+        backgroundColor: "#F7F7F7",
+        marginBottom: 20,
+        borderWidth: 1,
+        borderRadius: 5,
+        fontSize: 14,
+        padding: 10,
     },
     inputContainer: {
         width: "80%",
@@ -200,6 +249,20 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 5,
         fontSize: 14,
+        marginBottom: 20,
+    },
+    createButton: {
+        backgroundColor: "#3265C3",
+        width: "25%",
+        padding: 20,
+        borderRadius: 50,
+        marginTop: 20,
+    },
+    createButtonText: {
+        fontWeight: "bold",
+        fontSize: 15,
+        color: "#fff",
+        textAlign: "center",
     },
 });
 
