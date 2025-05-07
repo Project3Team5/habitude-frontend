@@ -76,9 +76,9 @@ const CreateGoal = () => {
                     <RNPickerSelect
                       onValueChange={(value) => handleChange("subject", value)}
                       items={[
-                        { label: "Charles", value: "Charles" },
-                        { label: "Jimmy", value: "Jimmy" },
-                        { label: "Jeff", value: "Jeff" },
+                        { label: "Charles", value: "1" },
+                        { label: "Jimmy", value: "2" },
+                        { label: "Jeff", value: "3" },
                       ]}
                       placeholder={{ label: 'Select Subject...', value: null }}
                       style={{
@@ -120,7 +120,7 @@ const CreateGoal = () => {
                         date={goal.targetDate}
                         onConfirm={({ date }) => {
                           setShowPicker(false);
-                          handleChange("date", date);
+                          handleChange("targetDate", date);
                         }}
                         validRange={{
                           endDate: new Date(),

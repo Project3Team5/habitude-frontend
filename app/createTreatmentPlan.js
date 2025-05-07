@@ -93,9 +93,9 @@ const CreateTreatmentPlan = () => {
                                         <RNPickerSelect
                                             onValueChange={(value) => handleChange("goal", value)}
                                             items={[
-                                                { label: "Temp 1", value: "Temp 1" },
-                                                { label: "Testing", value: "Testing" },
-                                                { label: "Tester", value: "Tester" },
+                                                { label: "Temp 1", value: "1" },
+                                                { label: "Testing", value: "2" },
+                                                { label: "Tester", value: "3" },
                                             ]}
                                             placeholder={{ label: 'Select Goal...', value: null }}
                                             style={{
@@ -112,9 +112,9 @@ const CreateTreatmentPlan = () => {
                                         <RNPickerSelect
                                             onValueChange={(value) => handleChange("observation", value)}
                                             items={[
-                                                { label: "Observation #1", value: "Observation #1" },
-                                                { label: "Observation #2", value: "Observation #2" },
-                                                { label: "Observation #3", value: "Observation #3" },
+                                                { label: "Observation #1", value: "1" },
+                                                { label: "Observation #2", value: "2" },
+                                                { label: "Observation #3", value: "3" },
                                             ]}
                                             placeholder={{ label: 'Select Observation...', value: null }}
                                             style={{
@@ -156,7 +156,7 @@ const CreateTreatmentPlan = () => {
                                                 date={treatmentPlan.nextReviewDate}
                                                 onConfirm={({ date }) => {
                                                     setShowPicker(false);
-                                                    handleChange("date", date);
+                                                    handleChange("nextReviewDate", date);
                                                 }}
                                                 validRange={{
                                                     endDate: new Date(),

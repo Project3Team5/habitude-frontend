@@ -74,9 +74,9 @@ const LogObservation = () => {
                     <RNPickerSelect
                       onValueChange={(value) => handleChange("subject", value)}
                       items={[
-                        { label: "Charles", value: "Charles" },
-                        { label: "Jimmy", value: "Jimmy" },
-                        { label: "Jeff", value: "Jeff" },
+                        { label: "Charles", value: "1" },
+                        { label: "Jimmy", value: "2" },
+                        { label: "Jeff", value: "3" },
                       ]}
                       placeholder={{ label: 'Select Subject...', value: null }}
                       style={{
