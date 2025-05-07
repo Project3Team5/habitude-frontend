@@ -77,6 +77,10 @@ const LoginPage = () => {
     alert("🔧 Google login coming soon.");
   };
 
+  const GitHubButton = () => {
+    alert("🔧 GitHub login coming soon.");
+  };
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
@@ -106,7 +110,10 @@ const LoginPage = () => {
                   <Text>Google</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.socialButton}>
+                <TouchableOpacity
+                  style={styles.socialButton}
+                  onPress={GitHubButton}
+                >
                   <Image
                     source={require("../assets/images/github.png")}
                     style={styles.socialIcon}

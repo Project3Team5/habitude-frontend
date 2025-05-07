@@ -31,6 +31,16 @@ const Signup = () => {
         return emailRegex.test(email);
     };
 
+    const GoogleButton = () => {
+        alert("🔧 Google sign up coming soon.");
+        // Proceed with sign up logic
+    };
+
+    const GitHubButton = () => {
+        alert("🔧 GitHub sign up coming soon.");
+        // Proceed with sign up logic
+    };
+
     const handleSignup = async () => {
         try {
             const response = await axios.post(`http://localhost:8080/api/users`, user);
@@ -79,7 +89,39 @@ const Signup = () => {
                     <View style={styles.bodyContainer}>
                         <Image source={require("../assets/images/Habitude-Top-Logo.png")} style={styles.logoIcon} resizeMode="contain" />
                         <View style={styles.loginContainer}>
-                            <Text style={styles.formTitle}>Sign up</Text>
+                            <Text style={styles.formTitle}>Sign up with</Text>
+
+                            <View style={styles.socialLogin}>
+                                <TouchableOpacity
+                                    style={styles.socialButton}
+                                    onPress={GoogleButton}
+                                >
+                                    <Image
+                                        source={require("../assets/images/google.png")}
+                                        style={styles.socialIcon}
+                                        resizeMode="contain"
+                                    />
+                                    <Text>Google</Text>
+                                </TouchableOpacity>
+
+                                <TouchableOpacity
+                                    style={styles.socialButton}
+                                    onPress={GitHubButton}
+                                >
+                                    <Image
+                                        source={require("../assets/images/github.png")}
+                                        style={styles.socialIcon}
+                                        resizeMode="contain"
+                                    />
+                                    <Text>GitHub</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={styles.separatorContainer}>
+                                <View style={styles.line} />
+                                <Text style={styles.separatorText}>or</Text>
+                                <View style={styles.line} />
+                            </View>
 
                             <View style={styles.inputWrapper}>
                                 <TextInput
@@ -163,6 +205,45 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         padding: 24,
         elevation: 5,
+    },
+    socialLogin: {
+        flexDirection: "row",
+        gap: 20,
+        justifyContent: "space-between",
+    },
+    socialButton: {
+        flex: 1,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 10,
+        backgroundColor: "#F9F8FF",
+        borderColor: "#a8bee7",
+        borderWidth: 1,
+        borderRadius: 5,
+        paddingVertical: 12,
+    },
+    socialIcon: {
+        width: 23,
+        height: 23,
+        marginRight: 8,
+    },
+    separatorContainer: {
+        flexDirection: "row",
+        marginVertical: 30,
+        alignItems: "center",
+    },
+    line: {
+        flex: 1,
+        height: 1,
+        backgroundColor: "#333",
+    },
+    separatorText: {
+        textAlign: "center",
+        marginHorizontal: 15,
+        fontWeight: "500",
+        fontSize: 17,
+        color: "#152A51",
     },
     formTitle: {
         textAlign: "center",
