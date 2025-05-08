@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import WebFooter from "../components/webFooter";
+import * as WebBrowser from 'expo-web-browser';
 
 const LoginPage = () => {
   const router = useRouter();
@@ -74,12 +75,59 @@ const LoginPage = () => {
   };
 
   const GoogleButton = () => {
-    alert("🔧 Google login coming soon.");
-  };
-
-  const GitHubButton = () => {
-    alert("🔧 GitHub login coming soon.");
-  };
+    // Add message listener
+    const messageHandler = (event) => {
+        if (event.origin === 'http://localhost:8080') {
+            const token = event.data.token;
+            if (token) {
+                localStorage.setItem('token', token);
+                router.replace("/landing");
+            }
+        }
+    };
+    // Add the listener
+    window.addEventListener('message', messageHandler);
+    // Open popup
+    const popup = window.open(
+        'http://localhost:8080/oauth2/authorization/google',
+        'Google Login',
+        'width=600,height=600'
+    );
+    // Clean up listener if popup is closed
+    const checkPopup = setInterval(() => {
+        if (popup.closed) {
+            clearInterval(checkPopup);
+            window.removeEventListener('message', messageHandler);
+        }
+    }, 1000);
+};
+const GithubButton = () => {
+    // Add message listener
+    const messageHandler = (event) => {
+        if (event.origin === 'http://localhost:8080') {
+            const token = event.data.token;
+            if (token) {
+                localStorage.setItem('token', token);
+                router.replace("/landing");
+            }
+        }
+    };
+    // Add the listener
+    window.addEventListener('message', messageHandler);
+    // Open popup
+    const popup = window.open(
+        'http://localhost:8080/oauth2/authorization/github',
+        'GitHub Login',
+        'width=600,height=600'
+    );
+    // Clean up listener if popup is closed
+    const checkPopup = setInterval(() => {
+        if (popup.closed) {
+            clearInterval(checkPopup);
+            window.removeEventListener('message', messageHandler);
+        }
+    }, 1000);
+};
 
   return (
     <SafeAreaProvider>
@@ -112,14 +160,14 @@ const LoginPage = () => {
 
                 <TouchableOpacity
                   style={styles.socialButton}
-                  onPress={GitHubButton}
+                  onPress={GithubButton}
                 >
                   <Image
                     source={require("../assets/images/github.png")}
                     style={styles.socialIcon}
                     resizeMode="contain"
                   />
-                  <Text>GitHub</Text>
+                  <Text>Github</Text>
                 </TouchableOpacity>
               </View>
 
