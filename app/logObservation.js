@@ -147,6 +147,7 @@ const LogObservation = () => {
 
                 <Text style={styles.label}>Intensity</Text>
                 <RNPickerSelect
+                  key={selectedIntensity === null ? "reset" : "set"}
                   onValueChange={(value) => setSelectedIntensity(value)}
                   items={[
                     { label: "Low", value: "Low" },
