@@ -8,11 +8,19 @@ const WebFooter = () => {
         <View style={styles.footer} >
             <View style={styles.footerImageContainer}>
                 <View>
-                    <Image source={require("../assets/images/Habitude-Footer-Logo.png")} style={styles.footerImage} />
+                    <Image
+                        source={require("../assets/images/Habitude-Footer-Logo.png")}
+                        style={styles.footerImage}
+                        resizeMode="contain"
+                    />
                 </View>
                 <View style={styles.verticalLine}></View>
                 <View>
-                    <Image source={require("../assets/images/CSUMB-COS-Logo.png")} style={styles.footerImage} />
+                    <Image
+                        source={require("../assets/images/CSUMB-COS-Logo.png")}
+                        style={styles.footerImage}
+                        resizeMode="contain"
+                    />
                 </View>
             </View>
             <View>
@@ -43,7 +51,6 @@ const styles = StyleSheet.create({
         height: "0%",
         aspectRatio: 3,
         marginHorizontal: 25,
-        resizeMode: "contain",
     },
     verticalLine: {
         height: "85%",
