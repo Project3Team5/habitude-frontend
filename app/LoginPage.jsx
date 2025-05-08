@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import WebFooter from "../components/webFooter";
+import * as WebBrowser from 'expo-web-browser';
 
 const LoginPage = () => {
   const router = useRouter();
