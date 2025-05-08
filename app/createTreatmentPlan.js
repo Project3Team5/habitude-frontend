@@ -1,5 +1,5 @@
-import React, { useState, useRef } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, TextInput, Platform, Button, ScrollView } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { StyleSheet, Text, TouchableOpacity, View, TextInput, Platform, ActivityIndicator, ScrollView } from "react-native";
 import dayjs from "dayjs";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import { MenuProvider } from "react-native-popup-menu";
@@ -11,14 +11,21 @@ import { en, registerTranslation } from "react-native-paper-dates";
 import axios from "axios";
 import WebGeneralHeader from "../components/webGeneralHeader";
 import WebFooter from "../components/webFooter";
+import { useAuth } from "../hooks/useAuth";
 
 registerTranslation("en", en);
 
 const CreateTreatmentPlan = () => {
+    const [userSubjects, setUserSubjects] = useState([])
+    const [userGoals, setUserGoals] = useState([])
+    const [userObservations, setUserObservations] = useState([])
     const [showPicker, setShowPicker] = useState(false);
     const [createError, setCreateError] = useState("");
     const router = useRouter();
     const scrollRef = useRef(null);
+    const [loading, setLoading] = useState(true);
+
+    const { user, userId, isAuthenticated, logout } = useAuth();
 
     const [treatmentPlan, setTreatmentPlan] = useState({
         subject: null,
@@ -29,31 +36,93 @@ const CreateTreatmentPlan = () => {
         notes: "",
     });
 
+    useEffect(() => {
+        if (user === null) return;
+        if (!isAuthenticated) {
+            router.push("/LoginPage");
+        } else {
+            handleGetUserSubjects();
+        }
+    }, [isAuthenticated, user]);
+
     const handleChange = (name, value) => {
         setTreatmentPlan(prev => ({ ...prev, [name]: value }));
     };
 
-    const handleCreateTreatmentPlan = async () => {
-        const { subject, goal, plan, notes } = treatmentPlan;
+    const handleGetUserSubjects = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/users/${userId}/subjects`, {
+                withCredentials: true,
+            });
+            setUserSubjects(response.data);
+        } catch (error) {
+            console.log("Error getting subjects from user: ", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-        if (!subject || !goal || !plan || !notes) {
+    const handleGetUserGoals = async (subjectId) => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/subjects/${subjectId}/goals`, {
+                withCredentials: true,
+            });
+            setUserGoals(response.data);
+        } catch (error) {
+            console.error("Error loading goals: ", error);
+        }
+    };
+
+    const handleGetUserObservations = async (subjectId) => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/observations/subjects/${subjectId}`, {
+                withCredentials: true,
+            });
+            setUserObservations(response.data);
+        } catch (error) {
+            console.error("Error loading observations: ", error);
+        }
+    };
+
+    const handleCreateTreatmentPlan = async () => {
+        const { subject, goal, plan, notes, observation, nextReviewDate } = treatmentPlan;
+
+        if (!subject || !goal || !plan) {
             setCreateError("⚠️ Please fill out all required fields.");
             return;
         }
 
         try {
             const response = await axios.post(
-                `http://localhost:8080/api/subjects/${treatmantPlan.subject.id}/treatment-plans`,
-                treatmentPlan
+                `http://localhost:8080/api/treatment-plans`,
+                {
+                    subjectId: subject.id,
+                    goalId: goal.id,
+                    observationId: observation?.id,
+                    plan,
+                    notes,
+                    nextReview: nextReviewDate,
+                },
+                {
+                    withCredentials: true,
+                }
             );
             if (response.data) {
-                router.push("/landing");
+                router.push({ pathname: "/treatmentPlans", params: { subjectId: subject.id, name: subject.name }, });
             }
         } catch (error) {
             setCreateError("Error creating new treatment plan for subject.");
             console.error("API Error:", error);
         }
     };
+
+    if (loading) {
+        return (
+            <View style={styles.centered}>
+                <ActivityIndicator size="large" />
+            </View>
+        );
+    }
 
     return (
         <PaperProvider>
@@ -72,13 +141,24 @@ const CreateTreatmentPlan = () => {
                                     <View>
                                         <Text style={styles.label}>Subject</Text>
                                         <RNPickerSelect
-                                            onValueChange={(value) => handleChange("subject", value)}
-                                            items={[
-                                                { label: "Charles", value: "1" },
-                                                { label: "Jimmy", value: "2" },
-                                                { label: "Jeff", value: "3" },
-                                            ]}
-                                            placeholder={{ label: 'Select Subject...', value: null }}
+                                            onValueChange={(subjectId) => {
+                                                const subject = userSubjects.find((s) => String(s.id) === String(subjectId));
+                                                handleChange("subject", subject);
+
+                                                if (String(subjectId)) {
+                                                    handleGetUserGoals(String(subjectId));
+                                                    handleGetUserObservations(String(subjectId));
+                                                }
+
+                                                // Clear previous selection
+                                                handleChange("goal", null);
+                                                handleChange("observation", null);
+                                            }}
+                                            items={userSubjects.map((s) => ({
+                                                label: s.name,
+                                                value: String(s.id),
+                                            }))}
+                                            placeholder={{ label: "Select Subject...", value: null }}
                                             style={{
                                                 inputIOS: styles.selectInput,
                                                 inputAndroid: styles.selectInput,
@@ -86,44 +166,53 @@ const CreateTreatmentPlan = () => {
                                             }}
                                         />
                                     </View>
+
 
                                     {/* Goal Picker */}
-                                    <View>
-                                        <Text style={styles.label}>Goal</Text>
-                                        <RNPickerSelect
-                                            onValueChange={(value) => handleChange("goal", value)}
-                                            items={[
-                                                { label: "Temp 1", value: "1" },
-                                                { label: "Testing", value: "2" },
-                                                { label: "Tester", value: "3" },
-                                            ]}
-                                            placeholder={{ label: 'Select Goal...', value: null }}
-                                            style={{
-                                                inputIOS: styles.selectInput,
-                                                inputAndroid: styles.selectInput,
-                                                inputWeb: styles.selectInput,
-                                            }}
-                                        />
-                                    </View>
+                                    {treatmentPlan.subject && (
+                                        < View >
+                                            <Text style={styles.label}>Goal</Text>
+                                            <RNPickerSelect
+                                                onValueChange={(goalId) => {
+                                                    const goal = userGoals.find((g) => String(g.id) === String(goalId));
+                                                    handleChange("goal", goal);
+                                                }}
+                                                items={userGoals.map((g) => ({
+                                                    label: g.description,
+                                                    value: String(g.id),
+                                                }))}
+                                                placeholder={{ label: 'Select Goal...', value: null }}
+                                                style={{
+                                                    inputIOS: styles.selectInput,
+                                                    inputAndroid: styles.selectInput,
+                                                    inputWeb: styles.selectInput,
+                                                }}
+                                            />
+                                        </View>
+                                    )}
 
                                     {/* Observation Picker */}
-                                    <View>
-                                        <Text style={styles.label}>Observation</Text>
-                                        <RNPickerSelect
-                                            onValueChange={(value) => handleChange("observation", value)}
-                                            items={[
-                                                { label: "Observation #1", value: "1" },
-                                                { label: "Observation #2", value: "2" },
-                                                { label: "Observation #3", value: "3" },
-                                            ]}
-                                            placeholder={{ label: 'Select Observation...', value: null }}
-                                            style={{
-                                                inputIOS: styles.selectInput,
-                                                inputAndroid: styles.selectInput,
-                                                inputWeb: styles.selectInput,
-                                            }}
-                                        />
-                                    </View>
+                                    {treatmentPlan.subject && (
+                                        < View >
+                                            <Text style={styles.label}>Observation</Text>
+                                            <RNPickerSelect
+                                                onValueChange={(obsId) => {
+                                                    const obs = userObservations.find((o) => String(o.id) === String(obsId));
+                                                    handleChange("observation", obs);
+                                                }}
+                                                items={userObservations.map((o) => ({
+                                                    label: `${o.behavior} (${dayjs(o.timestamp).format("MMM D, YYYY")})`,
+                                                    value: String(o.id),
+                                                }))}
+                                                placeholder={{ label: 'Select Observation...', value: null }}
+                                                style={{
+                                                    inputIOS: styles.selectInput,
+                                                    inputAndroid: styles.selectInput,
+                                                    inputWeb: styles.selectInput,
+                                                }}
+                                            />
+                                        </View>
+                                    )}
 
                                     {/* Plan */}
                                     <View>
@@ -190,11 +279,16 @@ const CreateTreatmentPlan = () => {
                     </SafeAreaView>
                 </SafeAreaProvider>
             </MenuProvider>
-        </PaperProvider>
+        </PaperProvider >
     );
 };
 
 const styles = StyleSheet.create({
+    centered: {
+        flex: 1,
+        justifyContent: "center",
+        backgroundColor: "#F7F7F7",
+    },
     container: {
         flex: 1,
         backgroundColor: "#F7F7F7",

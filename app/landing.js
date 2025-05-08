@@ -8,6 +8,7 @@ import { useRouter, Link } from "expo-router";
 import WebGeneralHeader from "../components/webGeneralHeader";
 import WebFooter from "../components/webFooter";
 import Pagination from "../components/pagination";
+import { useAuth } from "../hooks/useAuth";
 
 const Landing = () => {
    const [subjects, setSubjects] = useState([]);
@@ -16,20 +17,29 @@ const Landing = () => {
    const [isHovered, setIsHovered] = useState(false);
    const [loading, setLoading] = useState(true);
 
-   useEffect(() => {
-      const handleGetSubjectsData = async () => {
-         try {
-            const response = await axios.get(`http://localhost:8080/api/users/${userID}/subjects`);
-            setSubjects(response.data);
-         } catch (error) {
-            console.log("Error getting subjects from user: ", error);
-         } finally {
-            setLoading(false);
-         }
-      };
+   const { user, userId, isAuthenticated, logout } = useAuth();
 
-      handleGetSubjectsData();
-   }, []);
+   useEffect(() => {
+      if (user === null) return;
+      if (!isAuthenticated) {
+         router.push("/LoginPage");
+      } else {
+         handleGetSubjectsData();
+      }
+   }, [isAuthenticated, user]);
+
+   const handleGetSubjectsData = async () => {
+      try {
+         const response = await axios.get(`http://localhost:8080/api/users/${userId}/subjects`, {
+            withCredentials: true,
+          });                
+         setSubjects(response.data);
+      } catch (error) {
+         console.log("Error getting subjects from user: ", error);
+      } finally {
+         setLoading(false);
+      }
+   };
 
    const [page, setPage] = useState(0);
    const PAGE_SIZE = 5;
@@ -48,7 +58,7 @@ const Landing = () => {
 
    // Viewing the observation data and more of a clicked on subject
    const handleViewSpecificSubject = (id, name) => {
-      router.push({ pathname: "/specificSubject", params: { subjectId: id, name }, });
+      router.push({ pathname: "/specificSubject", params: { subjectId: id, name: name }, });
    };
 
    // Render of Each Individual Subject
@@ -184,7 +194,7 @@ const styles = StyleSheet.create({
       fontWeight: "bold",
       fontSize: 25,
       marginBottom: 35,
-  },
+   },
    noSubjectsTitle: {
       color: "#3265C3",
       fontSize: 18,

@@ -1,6 +1,6 @@
-import { React, useState, useRef } from 'react';
+import { React, useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Platform, ScrollView, ActivityIndicator } from 'react-native';
-import { useRouter, usePathname, useLocalSearchParams } from "expo-router";
+import { useRouter, usePathname, useLocalSearchParams, Link } from "expo-router";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import { MenuProvider, Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu";
 import dayjs from "dayjs";
@@ -8,6 +8,7 @@ import axios from "axios";
 import WebGeneralHeader from "../components/webGeneralHeader";
 import WebFooter from "../components/webFooter";
 import Pagination from "../components/pagination";
+import { useAuth } from "../hooks/useAuth";
 
 const TreatmentPlans = () => {
     const router = useRouter();
@@ -17,20 +18,29 @@ const TreatmentPlans = () => {
     const [loading, setLoading] = useState(true);
     const scrollRef = useRef(null);
 
-    useEffect(() => {
-        const handleViewTreatmentPlanData = async () => {
-            try {
-                const response = await axios.get(`http://localhost:8080/api/subjects/${subjectId}/treatment-plans`);
-                setTreatmentPlans(response.data);
-            } catch (error) {
-                console.log("Error getting treatment plans of chosen subject from user: ", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const { user, userId, isAuthenticated, logout } = useAuth();
 
-        handleViewTreatmentPlanData();
-    }, []);
+    useEffect(() => {
+        if (user === null) return;
+        if (!isAuthenticated) {
+            router.push("/LoginPage");
+        } else {
+            handleViewTreatmentPlanData();
+        }
+    }, [isAuthenticated, user]);
+
+    const handleViewTreatmentPlanData = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/subjects/${subjectId}/treatment-plans`, {
+                withCredentials: true,
+            });
+            setTreatmentPlans(response.data);
+        } catch (error) {
+            console.log("Error getting treatment plans of chosen subject from user: ", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const [page, setPage] = useState(0);
     const PAGE_SIZE = 5;

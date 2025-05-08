@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { StyleSheet, Text, TouchableOpacity, View, TextInput, Button, ScrollView } from "react-native";
 import dayjs from "dayjs";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
@@ -10,6 +10,7 @@ import { DatePickerModal } from "react-native-paper-dates";
 import { en, registerTranslation } from "react-native-paper-dates";
 import WebGeneralHeader from "../components/webGeneralHeader";
 import WebFooter from "../components/webFooter";
+import { useAuth } from "../hooks/useAuth";
 
 registerTranslation("en", en);
 
@@ -19,11 +20,20 @@ const CreateSubject = () => {
   const router = useRouter();
   const scrollRef = useRef(null);
 
+  const { user, userId, isAuthenticated, logout } = useAuth();
+
   const [subject, setSubject] = useState({
     name: "",
     dob: new Date(),
     notes: "",
   });
+
+  useEffect(() => {
+    if (user === null) return;
+    if (!isAuthenticated) {
+      router.push("/LoginPage");
+    }
+  }, [isAuthenticated, user]);
 
   const handleChange = (name, value) => {
     setSubject((prevSubject) => ({

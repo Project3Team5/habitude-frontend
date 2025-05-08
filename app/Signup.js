@@ -12,12 +12,12 @@ const Signup = () => {
     const scrollRef = useRef(null);
 
     const [user, setUser] = useState({
-        username: "",
+        name: "",
         email: "",
         password: "",
     });
 
-    const [usernameError, setUsernameError] = useState("");
+    const [nameError, setNameError] = useState("");
     const [emailError, setEmailError] = useState("");
     const [passwordError, setPasswordError] = useState("");
     const [createError, setCreateError] = useState("");
@@ -36,16 +36,16 @@ const Signup = () => {
         // Proceed with sign up logic
     };
 
-    const GitHubButton = () => {
+    const GithubButton = () => {
         alert("🔧 GitHub sign up coming soon.");
         // Proceed with sign up logic
     };
 
     const handleSignup = async () => {
         try {
-            const response = await axios.post(`http://localhost:8080/api/users`, user);
+            const response = await axios.post(`http://localhost:8080/api/users/signup`, user);
             if (response.data) {
-                router.push("/login");
+                router.push("/LoginPage");
             }
         } catch (error) {
             setCreateError("❌ Failed to create user.");
@@ -56,11 +56,11 @@ const Signup = () => {
     const signupButton = () => {
         let valid = true;
 
-        if (!user.username.trim()) {
-            setUsernameError("Username is required.");
+        if (!user.name.trim()) {
+            setNameError("name is required.");
             valid = false;
         } else {
-            setUsernameError("");
+            setNameError("");
         }
 
         if (!validateEmail(user.email)) {
@@ -106,14 +106,14 @@ const Signup = () => {
 
                                 <TouchableOpacity
                                     style={styles.socialButton}
-                                    onPress={GitHubButton}
+                                    onPress={GithubButton}
                                 >
                                     <Image
                                         source={require("../assets/images/github.png")}
                                         style={styles.socialIcon}
                                         resizeMode="contain"
                                     />
-                                    <Text>GitHub</Text>
+                                    <Text>Github</Text>
                                 </TouchableOpacity>
                             </View>
 
@@ -126,13 +126,13 @@ const Signup = () => {
                             <View style={styles.inputWrapper}>
                                 <TextInput
                                     style={styles.inputField}
-                                    placeholder="Username"
+                                    placeholder="Name"
                                     placeholderTextColor="#a6a6a6"
-                                    value={user.username}
-                                    onChangeText={(text) => handleChange("username", text)}
+                                    value={user.name}
+                                    onChangeText={(text) => handleChange("name", text)}
                                     autoCapitalize="none"
                                 />
-                                {usernameError ? <Text style={styles.errorText}>{usernameError}</Text> : null}
+                                {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
                             </View>
 
                             <View style={styles.inputWrapper}>

@@ -1,5 +1,5 @@
-import React, { useState, useRef } from "react";
-import { StyleSheet, Text, TouchableOpacity, View, TextInput, Platform, Button, ScrollView } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { StyleSheet, Text, TouchableOpacity, View, TextInput, Platform, ActivityIndicator, ScrollView } from "react-native";
 import dayjs from "dayjs";
 import RNPickerSelect from 'react-native-picker-select';
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
@@ -11,14 +11,19 @@ import { en, registerTranslation } from "react-native-paper-dates";
 import WebGeneralHeader from "../components/webGeneralHeader";
 import WebFooter from "../components/webFooter";
 import axios from "axios";
+import { useAuth } from "../hooks/useAuth";
 
 registerTranslation("en", en);
 
 const CreateGoal = () => {
+  const [userSubjects, setUserSubjects] = useState([]);
   const [showPicker, setShowPicker] = useState(false);
   const [createError, setCreateError] = useState("");
   const router = useRouter();
   const scrollRef = useRef(null);
+  const [loading, setLoading] = useState(true);
+
+  const { user, userId, isAuthenticated, logout } = useAuth();
 
   const [goal, setGoal] = useState({
     subject: null,
@@ -26,6 +31,28 @@ const CreateGoal = () => {
     targetDate: new Date(),
     status: null,
   });
+
+  useEffect(() => {
+    if (user === null) return;
+    if (!isAuthenticated) {
+      router.push("/LoginPage");
+    } else {
+      handleGetUserSubjects();
+    }
+  }, [isAuthenticated, user]);
+
+  const handleGetUserSubjects = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/users/${userId}/subjects`, {
+        withCredentials: true,
+      });
+      setUserSubjects(response.data);
+    } catch (error) {
+      console.log("Error getting subjects from user: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleChange = (name, value) => {
     setGoal((prevGoal) => ({
@@ -35,8 +62,6 @@ const CreateGoal = () => {
   };
 
   const handleCreateGoal = async () => {
-    const { subject, description, targetDate, status } = goal;
-
     if (!goal.subject || !goal.description || !goal.status) {
       setCreateError("⚠️ Please fill out all fields.");
       return;
@@ -45,16 +70,32 @@ const CreateGoal = () => {
     try {
       const response = await axios.post(
         `http://localhost:8080/api/subjects/${goal.subject.id}/goals`,
-        goal
+        {
+          subjectId: goal.subject.id,
+          description: goal.description,
+          targetDate: goal.targetDate,
+          status: goal.status,
+        },
+        {
+          withCredentials: true,
+        }
       );
       if (response.data) {
-        router.push(`/landing`);
+        router.push({ pathname: "/goals", params: { subjectId: goal.subject.id, name: goal.subject.name }, });
       }
     } catch (error) {
       setCreateError(`Error creating new goal for subject`);
       console.log("Error: ", error);
     }
   };
+
+  if (loading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
 
   return (
     <PaperProvider>
@@ -74,12 +115,14 @@ const CreateGoal = () => {
                   <View>
                     <Text style={styles.label}>Subject:</Text>
                     <RNPickerSelect
-                      onValueChange={(value) => handleChange("subject", value)}
-                      items={[
-                        { label: "Charles", value: "1" },
-                        { label: "Jimmy", value: "2" },
-                        { label: "Jeff", value: "3" },
-                      ]}
+                      onValueChange={(subjectId) => {
+                        const subject = userSubjects.find((s) => String(s.id) === String(subjectId));
+                        handleChange("subject", subject);
+                      }}
+                      items={userSubjects.map((s) => ({
+                        label: s.name,
+                        value: String(s.id),
+                      }))}
                       placeholder={{ label: 'Select Subject...', value: null }}
                       style={{
                         inputIOS: styles.selectInput,
@@ -136,9 +179,9 @@ const CreateGoal = () => {
                     <RNPickerSelect
                       onValueChange={(value) => handleChange("status", value)}
                       items={[
-                        { label: "Not Started", value: "Not Started" },
-                        { label: "In Progress", value: "In Progress" },
-                        { label: "Achieved", value: "Achieved" },
+                        { label: "Not Started", value: "not started" },
+                        { label: "In Progress", value: "in progress" },
+                        { label: "Achieved", value: "achieved" },
                       ]}
                       placeholder={{ label: 'Select Status...', value: null }}
                       style={{
@@ -164,6 +207,11 @@ const CreateGoal = () => {
 };
 
 const styles = StyleSheet.create({
+  centered: {
+    flex: 1,
+    justifyContent: "center",
+    backgroundColor: "#F7F7F7",
+  },
   container: {
     flex: 1,
     backgroundColor: "#F7F7F7",
