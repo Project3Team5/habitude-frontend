@@ -1,6 +1,6 @@
-import { React, useState, useRef } from 'react';
+import { React, useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Platform, ScrollView, ActivityIndicator } from 'react-native';
-import { useRouter, usePathname, useLocalSearchParams } from "expo-router";
+import { useRouter, usePathname, useLocalSearchParams, Link } from "expo-router";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import { MenuProvider, Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu";
 import dayjs from "dayjs";
@@ -8,6 +8,7 @@ import axios from "axios";
 import WebGeneralHeader from "../components/webGeneralHeader";
 import WebFooter from "../components/webFooter";
 import Pagination from "../components/pagination";
+import { useAuth } from "../hooks/useAuth";
 
 const Goals = () => {
     const router = useRouter();
@@ -17,20 +18,29 @@ const Goals = () => {
     const scrollRef = useRef(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const handleViewGoalsData = async () => {
-            try {
-                const response = await axios.get(`http://localhost:8080/api/subjects/${subjectId}/subjects`);
-                setGoals(response.data);
-            } catch (error) {
-                console.log("Error getting goals of chosen subject from user: ", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const { user, userId, isAuthenticated, logout } = useAuth();
 
-        handleViewGoalsData();
-    }, []);
+    useEffect(() => {
+        if (user === null) return;
+        if (!isAuthenticated) {
+          router.push("/LoginPage");
+        } else {
+          handleViewGoalsData();
+        }
+      }, [isAuthenticated, user]);
+
+    const handleViewGoalsData = async () => {
+        try {
+            const response = await axios.get(`http://localhost:8080/api/subjects/${subjectId}/goals`, {
+                withCredentials: true,
+            });
+            setGoals(response.data);
+        } catch (error) {
+            console.log("Error getting goals of chosen subject from user: ", error);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const [page, setPage] = useState(0);
     const PAGE_SIZE = 5;

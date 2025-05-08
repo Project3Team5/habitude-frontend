@@ -1,6 +1,6 @@
-import { React, useState, useRef } from 'react';
+import { React, useState, useEffect, useRef } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Platform, ScrollView, Pressable, ActivityIndicator } from 'react-native';
-import { useRouter, usePathname, useLocalSearchParams } from "expo-router";
+import { useRouter, usePathname, useLocalSearchParams, Link } from "expo-router";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import { MenuProvider, Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu";
 import dayjs from "dayjs";
@@ -8,6 +8,7 @@ import axios from "axios";
 import WebGeneralHeader from "../components/webGeneralHeader";
 import WebFooter from "../components/webFooter";
 import Pagination from "../components/pagination";
+import { useAuth } from "../hooks/useAuth";
 
 const SpecificSubject = () => {
   const router = useRouter();
@@ -19,22 +20,27 @@ const SpecificSubject = () => {
 
   const scrollRef = useRef(null);
 
-  // FIX: DOESN'T LOOK LIKE IT IS POSSIBLE TO VIEW OR CREATE OBSERVATIONS OF A CHOSEN SUBJECT AT THE MOMENT
+  const { user, userId, isAuthenticated, logout } = useAuth();
 
-  // useEffect(() => {
-  //   const handleViewObservationsData = async () => {
-  //     try {
-  //       const response = await axios.get(`http://localhost:8080/api/trend/by-subject/${subjectId}`);
-  //       setObservations(response.data);
-  //     } catch (error) {
-  //       console.log("Error getting observations of chosen subject from user: ", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
+  useEffect(() => {
+        if (user === null) return;
+        if (!isAuthenticated) {
+           router.push("/LoginPage");
+        } else {
+           handleViewObservationsData();
+        }
+     }, [isAuthenticated, user]);
 
-  //   handleViewObservationsData();
-  // }, []);
+  const handleViewObservationsData = async () => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/observations/subjects/${subjectId}`);
+      setObservations(response.data);
+    } catch (error) {
+      console.log("Error getting observations of chosen subject from user: ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 5;
@@ -137,7 +143,7 @@ const SpecificSubject = () => {
               <View style={styles.bodyContainer}>
                 <Text style={styles.sectionTitle}>Observations for {name}</Text>
                 {observations.length === 0 ? (
-                  <Link href="/createObservation" style={styles.noObservationsTitle}>
+                  <Link href="/logObservation" style={styles.noObservationsTitle}>
                     <Text>Log Your First Observation</Text>
                   </Link>
 

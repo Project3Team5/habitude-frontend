@@ -1,6 +1,6 @@
 import React, { useState, useRef } from "react";
 import { useRouter } from "expo-router";
-import axios from "axios"; // ✅ Import axios
+import axios from "axios";
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView, SafeAreaProvider } from "react-native-safe-area-context";
 import WebFooter from "../components/webFooter";
-import * as WebBrowser from 'expo-web-browser';
+import * as WebBrowser from "expo-web-browser";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -35,7 +35,6 @@ const LoginPage = () => {
     return emailRegex.test(email);
   };
 
-  // DOESN'T CURRENTLY WORK (NEED TO ADD LOGIN API ENDPOINT TO BACKEND)
   const handleLogin = async () => {
     try {
       const response = await axios.post(
@@ -44,6 +43,7 @@ const LoginPage = () => {
       );
 
       if (response.data) {
+        localStorage.setItem("user", JSON.stringify(response.data));
         router.push("/landing");
       } else {
         alert("Invalid credentials.");
@@ -77,57 +77,54 @@ const LoginPage = () => {
   const GoogleButton = () => {
     // Add message listener
     const messageHandler = (event) => {
-        if (event.origin === 'http://localhost:8080') {
-            const token = event.data.token;
-            if (token) {
-                localStorage.setItem('token', token);
-                router.replace("/landing");
-            }
-        }
+      if (event.origin === "http://localhost:8080") {
+        const user = event.data;
+        localStorage.setItem("user", JSON.stringify(user));
+        router.replace("/landing");
+      }
     };
     // Add the listener
-    window.addEventListener('message', messageHandler);
+    window.addEventListener("message", messageHandler);
     // Open popup
     const popup = window.open(
-        'http://localhost:8080/oauth2/authorization/google',
-        'Google Login',
-        'width=600,height=600'
+      "http://localhost:8080/oauth2/authorization/google",
+      "Google Login",
+      "width=600,height=600"
     );
     // Clean up listener if popup is closed
     const checkPopup = setInterval(() => {
-        if (popup.closed) {
-            clearInterval(checkPopup);
-            window.removeEventListener('message', messageHandler);
-        }
+      if (popup.closed) {
+        clearInterval(checkPopup);
+        window.removeEventListener("message", messageHandler);
+      }
     }, 1000);
-};
-const GithubButton = () => {
+  };
+
+  const GithubButton = () => {
     // Add message listener
     const messageHandler = (event) => {
-        if (event.origin === 'http://localhost:8080') {
-            const token = event.data.token;
-            if (token) {
-                localStorage.setItem('token', token);
-                router.replace("/landing");
-            }
-        }
+      if (event.origin === "http://localhost:8080") {
+        const user = event.data;
+        localStorage.setItem("user", JSON.stringify(user));
+        router.replace("/landing");
+      }
     };
     // Add the listener
-    window.addEventListener('message', messageHandler);
+    window.addEventListener("message", messageHandler);
     // Open popup
     const popup = window.open(
-        'http://localhost:8080/oauth2/authorization/github',
-        'GitHub Login',
-        'width=600,height=600'
+      "http://localhost:8080/oauth2/authorization/github",
+      "GitHub Login",
+      "width=600,height=600"
     );
     // Clean up listener if popup is closed
     const checkPopup = setInterval(() => {
-        if (popup.closed) {
-            clearInterval(checkPopup);
-            window.removeEventListener('message', messageHandler);
-        }
+      if (popup.closed) {
+        clearInterval(checkPopup);
+        window.removeEventListener("message", messageHandler);
+      }
     }, 1000);
-};
+  };
 
   return (
     <SafeAreaProvider>

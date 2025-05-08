@@ -2,10 +2,13 @@ import { React, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View, Image, Pressable, Dimensions } from 'react-native';
 import { useRouter, usePathname } from 'expo-router';
 import { Menu, MenuOptions, MenuOption, MenuTrigger } from "react-native-popup-menu";
+import { useAuth } from "../hooks/useAuth";
 
 const WebGeneralHeader = () => {
    const router = useRouter();
    const pathname = usePathname();
+
+   const { user, userId, isAuthenticated, logout } = useAuth();
 
    const handleHome = () => {
       if (pathname !== "/landing") {
@@ -44,8 +47,7 @@ const WebGeneralHeader = () => {
    };
 
    const handleLogout = () => {
-      router.dismissAll();
-      router.replace("/");
+      logout();
    };
 
    return (
